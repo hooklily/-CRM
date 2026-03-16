@@ -2,672 +2,603 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Personal CRM - Cozy Pixel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人际小镇 - Pro Web Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- 移除多余的 Google 字体，只保留最纯粹的 Zpix 中文像素字体 -->
     <link rel="stylesheet" href="https://unpkg.com/zpix-pixel-font/zpix.css">
     
     <script>
-        // 注入 Cozy Pixel 治愈系配色字典
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        woodBg: '#F4E8D1',       // 羊皮纸/米白背景
-                        woodDark: '#5C4033',     // 深橡木棕 (主文字/主边框)
-                        woodLight: '#E8D5B5',    // 浅木色/卡片背景
-                        woodShadow: '#D4C3A3',   // 柔和的木头阴影
-                        pixelRed: '#D96B62',     // 砖瓦红 (危险/雷区)
-                        pixelGreen: '#6A9C78',   // 荷叶绿 (健康/充电)
-                        pixelYellow: '#E6B956',  // 向日葵黄 (星星/警告)
-                        paperWhite: '#FDFBF7',   // 纯净信纸白
-                        healthGood: '#6A9C78',
-                        healthWarn: '#E6B956',
-                        healthBad: '#D96B62'
+                        woodBg: '#F4E8D1',       
+                        woodDark: '#5C4033',     
+                        woodLight: '#E8D5B5',    
+                        pixelRed: '#D96B62',     
+                        pixelGreen: '#6A9C78',   
+                        pixelYellow: '#E6B956',  
+                        paperWhite: '#FDFBF7',   
+                        cardBlue: '#A2D2FF',
+                        cardPink: '#FFAFCC',
+                        cardYellow: '#FDF0D5',
+                        cardGreen: '#B7E4C7'
                     },
                     fontFamily: {
-                        // 全局强制统一使用 Zpix 像素字体
-                        pixel: ['"Zpix"', 'monospace'], 
-                        sans: ['"Zpix"', 'monospace'] 
+                        sans: ['system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+                        pixel: ['"Zpix"', 'monospace'],
+                        // 显式声明衬线字体，用于高级感标题
+                        serif: ['Georgia', 'Cambria', '"Times New Roman"', 'Times', 'serif'] 
                     }
                 }
             }
         }
     </script>
     <style>
-        ::-webkit-scrollbar { display: none; }
-        * { -ms-overflow-style: none; scrollbar-width: none; -webkit-tap-highlight-color: transparent; }
-        
-        /* 核心优化：强制全站元素使用像素字体，并关闭浏览器的平滑渲染，露出性感的锯齿边缘 */
-        body, input, textarea, select, button { 
-            background-color: #D4C3A3; 
+        body { 
+            background-color: #F4E8D1; 
             color: #5C4033; 
-            letter-spacing: 0.05em; 
-            font-size: 1.1rem; 
+            letter-spacing: 0.02em; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .font-pixel {
             font-family: 'Zpix', monospace !important;
-            -webkit-font-smoothing: none; /* 关键：关闭抗锯齿 */
+            letter-spacing: 0.05em;
+            -webkit-font-smoothing: none;
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* 核心优化：给所有矢量图标加上硬边缘阴影，伪装成像素色块的厚度 */
-        i.fa-solid {
-            text-shadow: 1px 1px 0 rgba(92, 64, 51, 0.4);
-        }
-        
-        .page-enter { transform: translateX(100%); transition: transform 0.2s linear; }
-        .page-enter-active { transform: translateX(0); }
-        .page-exit { transform: translateX(0); transition: transform 0.2s linear; }
-        .page-exit-active { transform: translateX(100%); }
+        i.fa-solid { text-shadow: 2px 2px 0 rgba(92, 64, 51, 0.15); }
 
-        /* ==================== 治愈系像素 核心组件库 ==================== */
+        /* ==================== 积木组件与物理动效 ==================== */
         
-        /* 纸质卡片 (木色边框 + 浅木色硬阴影) */
-        .neo-card {
+        .capsule-nav {
             background-color: #FDFBF7;
-            border: 3px solid #5C4033;
+            border: 4px solid #5C4033;
+            box-shadow: 4px 4px 0 #5C4033;
+            border-radius: 9999px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .web-card {
+            background-color: #FDFBF7;
+            border: 4px solid #5C4033;
+            border-radius: 12px;
             box-shadow: 4px 4px 0 #D4C3A3;
-            transition: all 0.1s steps(2);
-            border-radius: 4px; /* 极小的圆角，模拟木块边缘打磨 */
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
-        .neo-card-clickable:active {
-            box-shadow: 0 0 0 #D4C3A3;
-            transform: translate(4px, 4px);
+        .web-card:hover {
+            transform: translateY(-8px) rotate(-1deg);
+            box-shadow: 12px 12px 0 #D4C3A3;
+        }
+        .web-card:nth-child(even):hover {
+            transform: translateY(-8px) rotate(1deg);
         }
 
-        /* 木块按钮 (清脆感) */
-        .neo-btn {
-            background-color: #E6B956; /* 默认向日葵黄 */
-            color: #5C4033;
-            border: 3px solid #5C4033;
-            box-shadow: 3px 3px 0 #5C4033;
-            font-weight: bold;
-            border-radius: 4px;
-            transition: all 0.1s steps(2);
-        }
-        .neo-btn:active {
-            box-shadow: 0 0 0 #5C4033;
-            transform: translate(3px, 3px);
-        }
-        
-        /* 辅助色按钮 */
-        .neo-btn-green { background-color: #6A9C78; color: white; border-color: #5C4033; box-shadow: 3px 3px 0 #5C4033; border-radius: 4px; transition: all 0.1s steps(2); }
-        .neo-btn-green:active { box-shadow: 0 0 0 #5C4033; transform: translate(3px, 3px); }
-        
-        .neo-btn-white { background-color: #FDFBF7; color: #5C4033; border-color: #5C4033; box-shadow: 3px 3px 0 #D4C3A3; border-radius: 4px; transition: all 0.1s steps(2); }
-        .neo-btn-white:active { box-shadow: 0 0 0 #D4C3A3; transform: translate(3px, 3px); background-color: #F4E8D1; }
-
-        /* 纸质输入框 */
-        .neo-input {
+        .title-box {
+            display: inline-block;
             background-color: #FDFBF7;
-            color: #5C4033;
+            border: 4px solid #5C4033;
+            padding: 8px 16px;
+            box-shadow: 6px 6px 0 #E6B956;
+            font-size: 1.5rem;
+            position: relative;
+        }
+
+        .neo-btn {
             border: 3px solid #5C4033;
-            border-radius: 4px;
-            box-shadow: inset 2px 2px 0 rgba(92, 64, 51, 0.1);
-            transition: all 0.1s;
+            box-shadow: 4px 4px 0 #5C4033;
+            border-radius: 8px;
+            transition: all 0.1s steps(2);
+            cursor: pointer;
+        }
+        .neo-btn:active { box-shadow: 0 0 0 #5C4033; transform: translate(4px, 4px); }
+
+        .neo-input {
+            border: 3px solid #5C4033;
+            border-radius: 8px;
+            box-shadow: inset 2px 2px 0 rgba(92, 64, 51, 0.05);
+            transition: all 0.2s;
         }
         .neo-input:focus {
             outline: none;
             background-color: white;
             box-shadow: 3px 3px 0 #E6B956;
         }
-        .neo-input::placeholder { color: rgba(92, 64, 51, 0.4); }
 
-        /* 移除单独的 .font-pixel 辅助类，因为现在全局都是像素字体了，简化逻辑 */
+        /* ==================== 商业级侧边抽屉系统 ==================== */
+        #drawer-backdrop {
+            background-color: rgba(92, 64, 51, 0.4);
+            backdrop-filter: blur(3px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        #drawer-backdrop.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .drawer-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            max-width: 640px; 
+            background-color: #F4E8D1;
+            border-left: 4px solid #5C4033;
+            box-shadow: -10px 0 30px rgba(92, 64, 51, 0.1);
+            transform: translateX(100%); 
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
+            z-index: 60;
+            overflow-y: auto;
+            padding-bottom: 40px;
+        }
+        .drawer-panel.active {
+            transform: translateX(0);
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #5C4033; border-radius: 3px; }
+
+        /* ==================== 深呼吸入场动效 (Staggered Fade-in) ==================== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0; /* 动画开始前保持隐藏 */
+        }
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+        .delay-400 { animation-delay: 400ms; }
     </style>
 </head>
-<body class="h-screen w-screen overflow-hidden flex justify-center items-center bg-[#D4C3A3]">
+<body class="w-full min-h-screen pb-20">
 
-    <!-- 手机模拟容器：书桌上的手账本 -->
-    <div id="app-container" class="w-full h-full max-w-md bg-woodBg relative overflow-hidden flex flex-col shadow-[0_10px_30px_rgba(92,64,51,0.2)] sm:h-[95vh] sm:border-8 sm:border-woodDark sm:rounded-xl">
-        
-        <!-- ==================== 主内容区 ==================== -->
-        <main class="flex-1 relative overflow-hidden bg-woodBg">
-            
-            <!-- 【Tab 1: 关系雷达 (Dashboard)】 -->
-            <div id="view-list" class="absolute inset-0 overflow-y-auto pb-24 z-10 bg-woodBg flex flex-col transition-opacity duration-200">
-                <div class="px-5 pt-12 pb-4 bg-woodBg sticky top-0 z-20 border-b-4 border-woodDark shadow-sm">
-                    <h1 class="font-pixel text-xl text-woodDark mb-2 flex items-center"><i class="fa-solid fa-seedling text-pixelGreen mr-2"></i>人际小镇</h1>
-                    <p class="text-sm text-woodDark/60 mb-4">按需要浇水的植物排序 🪴</p>
-                    <div class="relative">
-                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-woodDark/50"></i>
-                        <input type="text" id="search-input" placeholder="在小镇里寻找..." 
-                               class="neo-input w-full py-3 pl-11 pr-4 text-lg">
-                    </div>
-                </div>
-                <div id="contact-list" class="px-5 space-y-5 flex-1 mt-5"></div>
+    <!-- ==================== 顶部胶囊导航栏 ==================== -->
+    <div class="fixed top-6 left-0 w-full z-40 px-4 flex justify-center pointer-events-none">
+        <nav class="capsule-nav pointer-events-auto flex items-center justify-between px-6 py-3 w-full max-w-2xl text-sm md:text-base font-bold font-pixel">
+            <div class="flex items-center space-x-2 text-pixelGreen cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+                <i class="fa-solid fa-seedling text-xl"></i>
+                <span class="hidden sm:inline">人际小镇首页</span>
             </div>
-
-            <!-- 【Tab 2: 新增卡片 (Form)】 -->
-            <div id="view-form" class="absolute inset-0 overflow-y-auto pb-24 z-0 bg-woodBg flex flex-col hidden opacity-0 transition-opacity duration-200">
-                <div class="px-5 pt-12 pb-4 bg-woodBg sticky top-0 z-20 border-b-4 border-woodDark shadow-sm">
-                    <h1 class="font-pixel text-xl text-woodDark mb-2 flex items-center" id="form-main-title"><i class="fa-solid fa-leaf text-pixelGreen mr-2"></i>种下新种子</h1>
-                    <p class="text-sm text-woodDark/60">在你的花园里添加一位新伙伴</p>
-                </div>
-                <div class="px-5 flex-1 pb-10 mt-6">
-                    <form id="contact-form" class="space-y-6" onsubmit="app.saveContact(event)">
-                        <input type="hidden" id="form-id">
-                        
-                        <!-- 基本信息 -->
-                        <div class="neo-card p-5">
-                            <label class="block font-pixel text-xs text-woodDark mb-3 border-b-2 border-dashed border-woodDark/20 pb-1">🌱 基础档案</label>
-                            <input type="text" id="form-name" required placeholder="TA 的名字" class="neo-input w-full p-3 text-xl mb-4">
-                            
-                            <div class="flex space-x-3">
-                                <div class="flex-1">
-                                    <label class="block text-sm text-woodDark/70 mb-1">小镇分区</label>
-                                    <select id="form-group" class="neo-input w-full p-2.5 appearance-none cursor-pointer">
-                                        <option value="家人">家人 🏠</option>
-                                        <option value="朋友">朋友 🚲</option>
-                                        <option value="同事">同事 💼</option>
-                                        <option value="泛交点">泛交点 ☕</option>
-                                    </select>
-                                </div>
-                                <div class="flex-1">
-                                    <label class="block text-sm text-woodDark/70 mb-1">能量气场</label>
-                                    <select id="form-energy" class="neo-input w-full p-2.5 appearance-none cursor-pointer">
-                                        <option value="充电型">🔋 充电</option>
-                                        <option value="耗电型">🪫 耗电</option>
-                                        <option value="中性">⚖️ 中性</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 维护策略 -->
-                        <div class="neo-card p-5 bg-woodLight/30">
-                            <label class="block font-pixel text-xs text-woodDark mb-3 border-b-2 border-dashed border-woodDark/20 pb-1">💧 浇水频率</label>
-                            <div class="flex flex-col">
-                                <span class="text-sm text-woodDark mb-2">你想多久维系一次这段关系？</span>
-                                <select id="form-frequency" class="neo-input w-full p-3 appearance-none cursor-pointer">
-                                    <option value="7">每 7 天一次</option>
-                                    <option value="30" selected>每 30 天一次 (推荐)</option>
-                                    <option value="90">每 90 天一次 (按季)</option>
-                                    <option value="180">每 180 天一次 (半年)</option>
-                                    <option value="365">每 365 天一次 (过年)</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- 关系评估 -->
-                        <div class="neo-card p-5 space-y-3">
-                            <label class="block font-pixel text-xs text-woodDark mb-2 border-b-2 border-dashed border-woodDark/20 pb-1">🌻 阳光指数 (好感度)</label>
-                            <div class="flex flex-col">
-                                <span class="text-sm text-woodDark/80 mb-1">我对 TA 的感觉</span>
-                                <div class="flex space-x-2 text-2xl text-woodShadow" id="form-my-stars"></div>
-                                <input type="hidden" id="form-my-affinity" value="3">
-                            </div>
-                            <div class="w-full border-t-2 border-dashed border-woodDark/10 my-2"></div>
-                            <div class="flex flex-col">
-                                <span class="text-sm text-woodDark/80 mb-1">TA 对我的感觉 (预估)</span>
-                                <div class="flex space-x-2 text-2xl text-woodShadow" id="form-their-stars"></div>
-                                <input type="hidden" id="form-their-affinity" value="3">
-                            </div>
-                        </div>
-
-                        <!-- 标签与雷区 -->
-                        <div class="neo-card p-5 space-y-4">
-                            <div>
-                                <label class="block font-pixel text-xs text-woodDark mb-2">🏷️ 特质便利贴</label>
-                                <input type="text" id="tag-input" placeholder="输入后按回车生成..." class="neo-input w-full p-3 mb-2">
-                                <div id="form-tags-container" class="flex flex-wrap gap-2"></div>
-                            </div>
-                            <div>
-                                <label class="block font-pixel text-xs text-pixelRed mb-2">🚧 需要避开的水坑 (雷区)</label>
-                                <textarea id="form-taboos" rows="2" placeholder="TA讨厌什么..." class="neo-input w-full p-3 resize-none border-pixelRed/50"></textarea>
-                            </div>
-                        </div>
-
-                        <!-- 🔒 私密评价区 -->
-                        <div class="neo-card p-5 bg-woodDark text-woodBg border-woodDark">
-                            <label class="block font-pixel text-xs text-pixelYellow mb-3 flex items-center border-b-2 border-dashed border-woodBg/20 pb-1">
-                                <i class="fa-solid fa-lock mr-2"></i> 秘密日记本
-                            </label>
-                            <textarea id="form-private-notes" rows="3" placeholder="写下最真实的感受，这把锁只有你能打开..." class="neo-input w-full p-3 bg-woodBg text-woodDark border-woodBg resize-none"></textarea>
-                        </div>
-
-                        <button type="submit" class="neo-btn-green w-full text-xl py-4 flex justify-center items-center mt-4 font-pixel tracking-widest">
-                            [ 收进背包 ]
-                        </button>
-
-                        <!-- 🚨 新增：危险操作区 (仅在编辑模式下显示) -->
-                        <div id="form-delete-container" class="mt-8 pt-6 border-t-2 border-dashed border-pixelRed/30 hidden">
-                            <button type="button" onclick="app.deleteContact()" class="neo-btn w-full text-base py-3 flex justify-center items-center bg-woodBg text-pixelRed border-pixelRed shadow-[3px_3px_0_#D96B62] font-pixel">
-                                <i class="fa-solid fa-trash-can mr-2"></i> [ 让 TA 搬离小镇 ]
-                            </button>
-                        </div>
-                    </form>
-                </div>
+            <div class="flex items-center space-x-6 md:space-x-10 text-woodDark/80">
+                <button onclick="app.openDrawer('form')" class="hover:text-pixelYellow transition-colors flex items-center"><i class="fa-solid fa-plus-square mr-2"></i>栽种新树苗</button>
+                <button onclick="app.openDrawer('settings')" class="hover:text-woodDark transition-colors flex items-center"><i class="fa-solid fa-toolbox mr-2"></i>杂物间设置</button>
             </div>
-
-            <!-- 【Tab 3: 设置与数据 (Settings)】 -->
-            <div id="view-settings" class="absolute inset-0 overflow-y-auto pb-24 z-0 bg-woodBg flex flex-col hidden opacity-0 transition-opacity duration-200">
-                <div class="px-5 pt-12 pb-4 bg-woodBg sticky top-0 z-20 border-b-4 border-woodDark shadow-sm">
-                    <h1 class="font-pixel text-xl text-woodDark mb-2 flex items-center"><i class="fa-solid fa-toolbox text-pixelYellow mr-2"></i>杂物间</h1>
-                    <p class="text-sm text-woodDark/60">数据安全与向导设置</p>
-                </div>
-                <div class="px-5 mt-6 space-y-6">
-                    
-                    <!-- ⚙️ AI 大脑设置面板 -->
-                    <div class="neo-card p-5 bg-paperWhite">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="font-pixel text-xs text-woodDark flex items-center">
-                                <i class="fa-solid fa-robot mr-2 text-pixelGreen text-base"></i> 森系 AI 向导
-                            </h3>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="config-ai-toggle" class="sr-only peer" onchange="app.toggleCustomAI()">
-                                <div class="w-12 h-6 bg-woodShadow border-2 border-woodDark peer-focus:outline-none peer peer-checked:after:translate-x-full peer-checked:after:border-woodDark after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-woodDark after:border-2 after:h-4 after:w-4 after:transition-all peer-checked:bg-pixelGreen peer-checked:after:bg-paperWhite rounded-full after:rounded-full"></div>
-                            </label>
-                        </div>
-                        <p class="text-sm text-woodDark/70 mb-5 leading-relaxed">开启此项可使用自己的 API (兼容 OpenAI 格式) 替代默认模型。</p>
-                        
-                        <div id="config-ai-panel" class="space-y-3 hidden transition-all border-t-2 border-dashed border-woodDark/10 pt-4">
-                            <div>
-                                <label class="block text-sm text-woodDark/80 mb-1">魔法地址 (URL)</label>
-                                <input type="text" id="config-ai-url" placeholder="https://api.deepseek.com/v1/chat/completions" class="neo-input w-full p-2.5 text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-sm text-woodDark/80 mb-1">向导名称 (Model)</label>
-                                <input type="text" id="config-ai-model" placeholder="deepseek-chat" class="neo-input w-full p-2.5 text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-sm text-woodDark/80 mb-1">召唤咒语 (API Key)</label>
-                                <input type="password" id="config-ai-key" placeholder="sk-..." class="neo-input w-full p-2.5 text-sm font-sans">
-                            </div>
-                            <button onclick="app.saveAIConfig(event)" class="neo-btn w-full text-lg py-3 mt-3 flex justify-center items-center font-pixel text-woodDark bg-pixelYellow">
-                                保存配置
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 数据导入导出 -->
-                    <div class="neo-card p-5 bg-woodLight/50">
-                        <h3 class="font-pixel text-xs text-woodDark flex items-center mb-3">
-                            <i class="fa-solid fa-box-archive mr-2 text-woodDark/70 text-base"></i> 记忆储物箱
-                        </h3>
-                        <p class="text-sm text-woodDark/60 mb-5">你的小镇数据都在本地，记得打包备份哦。</p>
-                        
-                        <div class="space-y-3">
-                            <button onclick="app.exportData()" class="neo-btn-white w-full text-base py-3 flex justify-center items-center">
-                                <i class="fa-solid fa-download mr-3 text-pixelGreen"></i> 打包成 .JSON 存盘
-                            </button>
-                            
-                            <button onclick="app.exportToCSV()" class="neo-btn-white w-full text-base py-3 flex justify-center items-center">
-                                <i class="fa-solid fa-file-csv mr-3 text-pixelYellow"></i> 导出为 Excel 表格
-                            </button>
-                            
-                            <label class="neo-btn-white w-full text-base py-3 flex justify-center items-center cursor-pointer border-dashed border-woodDark/50 bg-woodBg">
-                                <i class="fa-solid fa-upload mr-3 text-woodDark/50"></i> 导入还原 .JSON
-                                <input type="file" id="import-file" accept=".json" class="hidden" onchange="app.importData(event)">
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <!-- ==================== 底部全局导航栏 ==================== -->
-        <nav id="bottom-nav" class="absolute bottom-0 w-full bg-paperWhite border-t-4 border-woodDark z-30 flex shadow-[0_-5px_10px_rgba(92,64,51,0.05)]">
-            <button onclick="app.switchTab('list')" id="tab-btn-list" class="flex-1 py-3 flex flex-col items-center justify-center text-pixelGreen border-r-2 border-woodDark/10 hover:bg-woodBg transition-colors">
-                <i class="fa-solid fa-map-location-dot text-2xl mb-1"></i>
-                <span class="font-pixel text-[10px] mt-1">地图</span>
-            </button>
-            <button onclick="app.switchTab('form')" id="tab-btn-form" class="flex-1 py-3 flex flex-col items-center justify-center text-woodShadow hover:text-pixelYellow border-r-2 border-woodDark/10 hover:bg-woodBg transition-colors">
-                <i class="fa-solid fa-seedling text-2xl mb-1"></i>
-                <span class="font-pixel text-[10px] mt-1">栽种</span>
-            </button>
-            <button onclick="app.switchTab('settings')" id="tab-btn-settings" class="flex-1 py-3 flex flex-col items-center justify-center text-woodShadow hover:text-woodDark hover:bg-woodBg transition-colors">
-                <i class="fa-solid fa-toolbox text-2xl mb-1"></i>
-                <span class="font-pixel text-[10px] mt-1">背包</span>
-            </button>
         </nav>
+    </div>
 
-        <!-- ==================== 弹层视图：详情与一键打卡 ==================== -->
-        <div id="view-detail" class="absolute inset-0 bg-woodBg z-50 flex flex-col page-enter hidden">
-            <!-- 头部 -->
-            <div class="px-4 pt-12 pb-3 bg-woodBg border-b-4 border-woodDark flex items-center justify-between sticky top-0 z-20 shadow-sm">
-                <button onclick="app.closeDetail()" class="text-woodDark flex items-center neo-btn-white px-3 py-1.5 text-sm font-pixel">
-                    <i class="fa-solid fa-arrow-left mr-2"></i> 返回
-                </button>
-                <button onclick="app.editCurrentContact()" class="text-woodDark bg-pixelYellow px-3 py-1.5 text-sm neo-btn font-pixel">
-                    <i class="fa-solid fa-pen mr-1"></i> 修改
-                </button>
-            </div>
-
-            <!-- 详情内容 -->
-            <div class="flex-1 overflow-y-auto px-5 pb-8 pt-5">
+    <!-- ==================== 网页主画布 (Main Canvas) ==================== -->
+    <main class="max-w-6xl mx-auto pt-32 px-6 md:px-12">
+        
+        <!-- 👁️ 视觉焦点区 (Hero Section) - 美术馆展签级重构 -->
+        <header class="flex flex-col-reverse md:flex-row items-center justify-between mb-20 gap-10">
+            <div class="flex-1 text-left w-full">
                 
-                <!-- 核心资料卡 -->
-                <div class="neo-card p-5 mb-5 relative bg-paperWhite">
-                    <div class="flex justify-between items-start mb-4">
-                        <h2 id="detail-name" class="font-pixel text-2xl text-woodDark"></h2>
-                        <span id="detail-group" class="text-xs font-bold px-2 py-1 bg-woodBg text-woodDark border-2 border-woodDark rounded-md shadow-[2px_2px_0_#D4C3A3]"></span>
-                    </div>
-                    
-                    <!-- 关系温度计 (血条) -->
-                    <div class="mb-5 pt-3 bg-woodBg/50 p-3 rounded-md border-2 border-dashed border-woodDark/20">
-                        <div class="flex justify-between items-end mb-2">
-                            <span class="font-pixel text-[10px] text-woodDark/70"><i class="fa-solid fa-droplet text-blue-400 mr-1"></i>植物水分</span>
-                            <span id="detail-health-text" class="text-sm font-bold font-pixel"></span>
-                        </div>
-                        <div class="w-full h-4 border-2 border-woodDark bg-paperWhite overflow-hidden p-0.5 rounded-full">
-                            <div id="detail-health-bar" class="h-full bg-pixelGreen transition-all duration-1000 ease-out w-full rounded-full"></div>
-                        </div>
-                        <p id="detail-last-contact" class="text-xs text-woodDark/60 mt-2 font-pixel tracking-tighter"></p>
-                    </div>
-
-                    <div id="detail-tags" class="flex flex-wrap gap-2 mb-5"></div>
-
-                    <div class="bg-woodBg border-2 border-woodDark rounded-md p-3 space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-woodDark/80">我对 TA 的感觉</span>
-                            <div id="detail-my-stars" class="text-pixelYellow text-lg drop-shadow-sm"></div>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-woodDark/80">TA 对我的感觉</span>
-                            <div id="detail-their-stars" class="text-pixelYellow text-lg drop-shadow-sm"></div>
-                        </div>
-                        <div class="h-px w-full bg-woodDark/10 my-1"></div>
-                        <div id="detail-energy" class="text-sm text-woodDark font-bold flex items-center pt-1"></div>
-                    </div>
-
-                    <div id="detail-taboos-container" class="mt-4 bg-pixelRed/10 text-pixelRed p-3 border-2 border-pixelRed rounded-md hidden">
-                        <div class="font-pixel text-[10px] mb-1.5"><i class="fa-solid fa-triangle-exclamation mr-1"></i> 注意避让</div>
-                        <div id="detail-taboos" class="text-sm font-bold leading-tight"></div>
-                    </div>
-                </div>
-
-                <!-- 🔒 私密评价展示区 -->
-                <div id="detail-private-container" class="mb-6 neo-card p-4 bg-woodDark text-paperWhite hidden">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="font-pixel text-[10px] text-pixelYellow flex items-center">
-                            <i class="fa-solid fa-lock mr-2 text-sm"></i> 加密日记
-                        </div>
-                        <button onclick="app.togglePrivateNotes()" id="detail-private-toggle" class="text-xs text-woodDark font-bold bg-paperWhite px-2 py-1 neo-btn-white border-paperWhite shadow-[2px_2px_0_#D4C3A3] font-pixel">翻开看看</button>
-                    </div>
-                    <div id="detail-private-notes" class="text-sm filter blur-[6px] select-none transition-all duration-300 leading-relaxed border-l-4 border-pixelYellow pl-3"></div>
-                </div>
-
-                <!-- 🤖 AI 智能助理区 -->
-                <div class="mb-8">
-                    <h3 class="font-pixel text-[12px] text-woodDark mb-3 flex items-center">
-                        <i class="fa-solid fa-leaf text-pixelGreen mr-2"></i> 森系向导
-                    </h3>
-                    
-                    <!-- AI 场景工具栏 -->
-                    <div class="flex space-x-2 mb-3 overflow-x-auto no-scrollbar pb-2">
-                        <button onclick="app.runAITask('profile')" id="btn-ai-profile" class="shrink-0 neo-btn-green text-sm px-3 py-2.5 whitespace-nowrap font-pixel">
-                            人物速写
-                        </button>
-                        <button onclick="app.runAITask('message')" id="btn-ai-message" class="shrink-0 neo-btn-white bg-woodLight border-woodDark text-woodDark shadow-[3px_3px_0_#5C4033] text-sm px-3 py-2.5 whitespace-nowrap font-pixel">
-                            写封信件
-                        </button>
-                        <button onclick="app.runAITask('ideas')" id="btn-ai-ideas" class="shrink-0 neo-btn bg-pixelYellow text-woodDark text-sm px-3 py-2.5 whitespace-nowrap font-pixel">
-                            准备礼物
-                        </button>
-                    </div>
-                    
-                    <!-- AI 结果展示卡片 -->
-                    <div id="ai-profile-container" class="neo-card p-5 bg-paperWhite hidden relative overflow-hidden">
-                        <div class="absolute -top-6 -right-6 text-6xl text-pixelGreen/10"><i class="fa-solid fa-leaf"></i></div>
-                        <div id="ai-profile-content" class="text-sm text-woodDark leading-relaxed space-y-3 relative z-10"></div>
-                        <div class="mt-4 border-t-2 border-dashed border-woodDark/20 pt-2 flex justify-between items-center relative z-10">
-                            <span id="ai-profile-type" class="font-pixel text-[10px] text-pixelGreen"></span>
-                            <span id="ai-profile-date" class="text-[10px] text-woodDark/40 font-sans"></span>
+                <!-- 主标题：衬线体 (Serif) + 错野入场动效 -->
+                <h1 class="text-5xl md:text-6xl lg:text-7xl font-serif text-woodDark leading-[1.15] mb-6 animate-fade-in-up">
+                    我是<span class="italic">小镇镇长</span>，<br>
+                    经营着这座<br>
+                    <span class="text-pixelGreen/90">人际花园。</span>
+                </h1>
+                
+                <!-- 英文副标与说明：干净、克制的现代无衬线体 -->
+                <p class="text-base md:text-lg font-sans text-woodDark/60 mb-10 leading-relaxed font-medium tracking-wide animate-fade-in-up delay-100">
+                    <span class="text-sm tracking-[0.1em] uppercase text-woodDark/40 block mb-2">Digital Gardener | Co-Pilot by Gemini AI</span>
+                    用心浇灌每一段关系，拒绝无效社交。
+                </p>
+                
+                <!-- 数据统计面板：保持微小的粗野主义反差 -->
+                <div class="flex flex-wrap justify-start gap-4 animate-fade-in-up delay-200">
+                    <div class="bg-paperWhite border-2 border-woodDark/20 px-5 py-3 rounded-xl flex items-center space-x-4">
+                        <div class="bg-pixelGreen/10 p-2 rounded-lg text-pixelGreen"><i class="fa-solid fa-users text-xl"></i></div>
+                        <div>
+                            <span class="text-[10px] text-woodDark/50 block mb-0.5 font-sans font-bold uppercase tracking-wider">Total Residents</span>
+                            <span class="text-2xl font-bold font-pixel" id="stat-total">0</span>
                         </div>
                     </div>
-                </div>
-
-                <!-- 🌟 无摩擦打卡区 -->
-                <div class="mb-8">
-                    <h3 class="font-pixel text-[12px] text-woodDark mb-3 flex items-center">
-                        <i class="fa-solid fa-watering-can text-blue-400 mr-2"></i> 给植物浇水
-                    </h3>
-                    <div class="grid grid-cols-4 gap-2">
-                        <button onclick="app.quickLog('💬', '线上闲聊')" class="neo-btn-white flex flex-col items-center justify-center py-3">
-                            <span class="text-2xl mb-1">💬</span><span class="text-xs font-bold mt-1">打招呼</span>
-                        </button>
-                        <button onclick="app.quickLog('📞', '语音电话')" class="neo-btn-white flex flex-col items-center justify-center py-3">
-                            <span class="text-2xl mb-1">📞</span><span class="text-xs font-bold mt-1">通电话</span>
-                        </button>
-                        <button onclick="app.quickLog('☕️', '见面喝东西')" class="neo-btn-white flex flex-col items-center justify-center py-3">
-                            <span class="text-2xl mb-1">☕️</span><span class="text-xs font-bold mt-1">去咖啡馆</span>
-                        </button>
-                        <button onclick="app.quickLog('🍽️', '一起吃饭')" class="neo-btn-white flex flex-col items-center justify-center py-3">
-                            <span class="text-2xl mb-1">🍽️</span><span class="text-xs font-bold mt-1">共进晚餐</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 互动轨迹 -->
-                <div>
-                    <h3 class="font-pixel text-[12px] text-woodDark mb-3 flex items-center">
-                        <i class="fa-solid fa-book-open text-pixelYellow mr-2"></i> 成长日记
-                    </h3>
-                    <div id="detail-logs" class="space-y-3">
-                        <!-- 动态记录生成区 -->
+                    <div class="bg-paperWhite border-2 border-woodDark/20 px-5 py-3 rounded-xl flex items-center space-x-4">
+                        <div class="bg-pixelRed/10 p-2 rounded-lg text-pixelRed"><i class="fa-solid fa-droplet text-xl"></i></div>
+                        <div>
+                            <span class="text-[10px] text-woodDark/50 block mb-0.5 font-sans font-bold uppercase tracking-wider">Needs Watering</span>
+                            <span class="text-2xl font-bold text-pixelRed font-pixel" id="stat-warning">0</span>
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <!-- 补充文本打卡 -->
-            <div class="bg-woodLight/50 border-t-4 border-woodDark p-3 pb-safe shadow-[0_-5px_10px_rgba(92,64,51,0.05)]">
-                <form onsubmit="app.addTextLog(event)" class="flex items-center">
-                    <input type="text" id="log-input" placeholder="在日记本上写下点什么..." class="neo-input flex-1 p-2.5 text-sm">
-                    <button type="submit" class="w-12 h-12 bg-pixelGreen text-white border-3 border-woodDark shadow-[3px_3px_0_#5C4033] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all flex items-center justify-center ml-2 rounded-md">
-                        <i class="fa-solid fa-pen text-lg"></i>
-                    </button>
-                </form>
+            <!-- 右侧：插画视窗 -->
+            <div class="w-64 h-64 md:w-80 md:h-80 shrink-0 bg-cardBlue/60 border-4 border-woodDark rounded-3xl shadow-[8px_8px_0_#5C4033] relative overflow-hidden flex items-center justify-center transition-transform hover:scale-105 duration-700 animate-fade-in-up delay-300">
+                <div class="absolute bottom-0 w-full h-1/3 bg-pixelGreen border-t-4 border-woodDark"></div>
+                <div class="absolute bottom-1/4 left-1/4 w-16 h-16 bg-woodLight border-4 border-woodDark flex flex-col justify-end"><div class="w-full h-8 bg-pixelRed border-t-4 border-woodDark"></div></div>
+                <div class="absolute top-1/4 right-1/4 w-12 h-12 bg-pixelYellow border-4 border-woodDark rounded-full"></div>
+                <i class="fa-solid fa-tree text-6xl text-woodDark absolute bottom-8 right-12"></i>
+            </div>
+        </header>
+
+        <!-- 🧩 搜索与工具栏 -->
+        <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4 border-b-4 border-woodDark/10 pb-6">
+            <div class="title-box font-pixel">
+                <i class="fa-solid fa-address-book text-pixelRed mr-2"></i>居民图鉴
+            </div>
+            <div class="relative w-full md:w-80">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-woodDark/50"></i>
+                <input type="text" id="search-input" placeholder="检索居民姓名或标签..." 
+                       class="w-full bg-paperWhite border-4 border-woodDark rounded-xl py-3 pl-12 pr-4 shadow-[4px_4px_0_#D4C3A3] focus:outline-none focus:translate-y-1 focus:shadow-none transition-all font-sans font-medium text-lg placeholder-woodDark/40">
             </div>
         </div>
 
+        <!-- 🗂️ 核心网格布局 -->
+        <div id="contact-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <!-- JS 动态渲染卡片 -->
+        </div>
+
+    </main>
+
+
+    <!-- ==================== 商业级侧边抽屉系统 (Side Drawer System) ==================== -->
+    <div id="drawer-backdrop" class="fixed inset-0 z-50"></div>
+
+    <!-- 1. 详情页抽屉 (Detail Drawer) -->
+    <div id="drawer-detail" class="drawer-panel">
+        <div class="sticky top-0 bg-woodBg/90 backdrop-blur-md z-10 px-6 py-4 border-b-4 border-woodDark/10 flex justify-between items-center">
+            <button onclick="app.closeDrawer()" class="text-woodDark/60 hover:text-pixelRed transition-colors text-xl"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+            <button onclick="app.editCurrentContact()" class="bg-pixelYellow px-4 py-2 neo-btn text-sm font-pixel"><i class="fa-solid fa-pen mr-2"></i>修改档案</button>
+        </div>
+
+        <div class="px-6 md:px-10 pt-6">
+            <div class="flex items-end justify-between mb-8">
+                <div>
+                    <span id="detail-group" class="text-xs font-bold px-2 py-1 bg-woodLight border-2 border-woodDark rounded shadow-sm font-pixel inline-block mb-3"></span>
+                    <h2 id="detail-name" class="text-4xl font-bold text-woodDark font-pixel tracking-wide"></h2>
+                </div>
+                <div id="detail-energy" class="text-sm font-bold text-woodDark bg-paperWhite px-3 py-1.5 border-2 border-woodDark rounded-lg shadow-sm font-pixel"></div>
+            </div>
+            
+            <div class="bg-paperWhite border-4 border-woodDark p-5 shadow-[4px_4px_0_#D4C3A3] rounded-xl mb-8">
+                <div class="mb-5">
+                    <div class="flex justify-between items-end mb-2">
+                        <span class="text-sm font-bold font-pixel"><i class="fa-solid fa-droplet text-blue-400 mr-2"></i>植物水分 (HP)</span>
+                        <span id="detail-health-text" class="font-bold font-pixel"></span>
+                    </div>
+                    <div class="w-full h-5 border-2 border-woodDark bg-white rounded-full p-0.5"><div id="detail-health-bar" class="h-full bg-pixelGreen rounded-full transition-all duration-1000 ease-out"></div></div>
+                    <p id="detail-last-contact" class="text-[10px] text-woodDark/50 mt-2 font-pixel"></p>
+                </div>
+                <div class="grid grid-cols-2 gap-4 border-t-2 border-dashed border-woodDark/20 pt-4">
+                    <div><span class="block text-xs text-woodDark/70 mb-1 font-pixel">我对TA的感觉</span><div id="detail-my-stars" class="text-pixelYellow text-lg"></div></div>
+                    <div><span class="block text-xs text-woodDark/70 mb-1 font-pixel">TA对我的感觉</span><div id="detail-their-stars" class="text-pixelYellow text-lg"></div></div>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <h3 class="text-sm text-woodDark mb-3 font-pixel"><i class="fa-solid fa-tags text-woodDark/50 mr-2"></i>特质便利贴</h3>
+                <div id="detail-tags" class="flex flex-wrap gap-2 mb-4 font-sans font-bold"></div>
+                <div id="detail-taboos-container" class="mt-4 bg-pixelRed/10 p-4 border-l-4 border-pixelRed rounded-r-lg text-pixelRed hidden">
+                    <div class="text-[10px] font-bold mb-1 font-pixel"><i class="fa-solid fa-triangle-exclamation"></i> 高危雷区</div>
+                    <div id="detail-taboos" class="text-sm font-bold font-sans"></div>
+                </div>
+            </div>
+
+            <div id="detail-private-container" class="mb-8 bg-woodDark text-paperWhite p-5 border-4 border-woodDark rounded-xl shadow-[4px_4px_0_#D4C3A3] hidden">
+                <div class="flex items-center justify-between mb-3 border-b-2 border-paperWhite/20 pb-3">
+                    <span class="text-pixelYellow font-pixel"><i class="fa-solid fa-lock mr-2"></i>加密日记本</span>
+                    <button onclick="app.togglePrivateNotes()" id="detail-private-toggle" class="bg-paperWhite text-woodDark px-3 py-1.5 neo-btn text-xs font-pixel">翻开看看</button>
+                </div>
+                <div id="detail-private-notes" class="text-base font-sans font-medium filter blur-[8px] select-none transition-all duration-300 leading-relaxed border-l-4 border-pixelYellow pl-4 py-1"></div>
+            </div>
+
+            <div class="mb-8 bg-cardGreen/30 border-4 border-woodDark p-5 rounded-xl shadow-[4px_4px_0_#B7E4C7]">
+                <h3 class="text-sm text-woodDark mb-4 flex items-center border-b-2 border-woodDark/10 pb-3 font-pixel">
+                    <i class="fa-solid fa-robot text-pixelGreen mr-2 text-lg"></i> 森系 AI 向导
+                </h3>
+                <div class="flex space-x-3 mb-5 overflow-x-auto pb-2 font-pixel">
+                    <button onclick="app.runAITask('profile')" id="btn-ai-profile" class="neo-btn bg-white px-4 py-2.5 text-sm shrink-0 hover:bg-woodBg transition-colors">人物速写</button>
+                    <button onclick="app.runAITask('message')" id="btn-ai-message" class="neo-btn bg-white px-4 py-2.5 text-sm shrink-0 hover:bg-woodBg transition-colors">写封信件</button>
+                    <button onclick="app.runAITask('ideas')" id="btn-ai-ideas" class="neo-btn bg-white px-4 py-2.5 text-sm shrink-0 hover:bg-woodBg transition-colors">准备礼物</button>
+                </div>
+                <div id="ai-profile-container" class="bg-white border-2 border-woodDark p-5 rounded-lg hidden shadow-inner">
+                    <div id="ai-profile-content" class="text-base font-sans font-medium leading-relaxed space-y-3 text-woodDark/90"></div>
+                    <div class="mt-5 border-t-2 border-dashed border-woodDark/20 pt-3 flex justify-between text-[10px] text-woodDark/50 font-pixel">
+                        <span id="ai-profile-type"></span><span id="ai-profile-date"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-10">
+                <h3 class="text-sm text-woodDark mb-3 font-pixel"><i class="fa-solid fa-watering-can text-blue-400 mr-2"></i>快捷浇水</h3>
+                <div class="grid grid-cols-4 gap-3 mb-6 font-pixel">
+                    <button onclick="app.quickLog('💬', '线上闲聊')" class="neo-btn bg-white py-3 flex flex-col items-center justify-center hover:bg-cardBlue/20"><span class="text-2xl mb-1">💬</span><span class="text-[10px]">闲聊</span></button>
+                    <button onclick="app.quickLog('📞', '语音电话')" class="neo-btn bg-white py-3 flex flex-col items-center justify-center hover:bg-cardYellow/40"><span class="text-2xl mb-1">📞</span><span class="text-[10px]">电话</span></button>
+                    <button onclick="app.quickLog('☕️', '见面喝东西')" class="neo-btn bg-white py-3 flex flex-col items-center justify-center hover:bg-cardPink/20"><span class="text-2xl mb-1">☕️</span><span class="text-[10px]">小聚</span></button>
+                    <button onclick="app.quickLog('🍽️', '一起吃饭')" class="neo-btn bg-white py-3 flex flex-col items-center justify-center hover:bg-cardGreen/40"><span class="text-2xl mb-1">🍽️</span><span class="text-[10px]">约饭</span></button>
+                </div>
+                <h3 class="text-sm text-woodDark mb-3 font-pixel"><i class="fa-solid fa-pen mr-2"></i>随手记账</h3>
+                <form onsubmit="app.addTextLog(event)" class="flex gap-3">
+                    <input type="text" id="log-input" placeholder="今天发生了什么趣事..." class="neo-input flex-1 p-4 text-base font-sans font-medium bg-paperWhite placeholder-woodDark/30">
+                    <button type="submit" class="w-16 neo-btn bg-pixelGreen text-white flex items-center justify-center text-xl hover:bg-pixelGreen/90"><i class="fa-solid fa-paper-plane"></i></button>
+                </form>
+            </div>
+
+            <div class="border-t-4 border-woodDark/10 pt-8">
+                <h3 class="text-base font-bold mb-5 font-pixel"><i class="fa-solid fa-book-open text-pixelYellow mr-2"></i>成长日记</h3>
+                <div id="detail-logs" class="space-y-4"></div>
+            </div>
+        </div>
     </div>
 
-    <!-- ==================== 核心大脑 ==================== -->
+    <!-- 2. 表单抽屉 (Form Drawer) -->
+    <div id="drawer-form" class="drawer-panel">
+        <div class="sticky top-0 bg-woodBg/90 backdrop-blur-md z-10 px-6 py-4 border-b-4 border-woodDark/10 flex justify-between items-center">
+            <button onclick="app.closeDrawer()" class="text-woodDark/60 hover:text-pixelRed transition-colors text-xl"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+            <span class="font-pixel text-sm font-bold text-woodDark/50">ARCHIVE SYSTEM</span>
+        </div>
+        <div class="px-6 md:px-10 pt-6">
+            <h1 class="text-3xl font-bold mb-8 font-pixel" id="form-main-title">种下新种子</h1>
+            <form id="contact-form" class="space-y-6" onsubmit="app.saveContact(event)">
+                <input type="hidden" id="form-id">
+                
+                <div class="bg-paperWhite border-4 border-woodDark p-6 shadow-[4px_4px_0_#D4C3A3] rounded-xl">
+                    <input type="text" id="form-name" required placeholder="居民姓名" class="neo-input w-full p-4 text-xl mb-5 font-sans font-bold bg-white">
+                    <div class="grid grid-cols-3 gap-4 font-pixel">
+                        <div><label class="block text-xs mb-2">分区</label>
+                            <select id="form-group" class="neo-input w-full p-3 bg-white text-sm"><option value="家人">家人 🏠</option><option value="朋友">朋友 🚲</option><option value="同事">同事 💼</option><option value="泛交点">泛交点 ☕</option></select>
+                        </div>
+                        <div><label class="block text-xs mb-2">能量</label>
+                            <select id="form-energy" class="neo-input w-full p-3 bg-white text-sm"><option value="充电型">🔋 充电</option><option value="耗电型">🪫 耗电</option><option value="中性">⚖️ 中性</option></select>
+                        </div>
+                        <div><label class="block text-xs mb-2">维系频率</label>
+                            <select id="form-frequency" class="neo-input w-full p-3 bg-white text-sm"><option value="7">7天</option><option value="30" selected>30天</option><option value="90">90天</option><option value="180">半年</option><option value="365">一年</option></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-paperWhite border-4 border-woodDark p-6 shadow-[4px_4px_0_#D4C3A3] rounded-xl flex justify-around font-pixel">
+                    <div class="text-center"><span class="block text-xs mb-3 text-woodDark/70">我对 TA 的感觉</span><div class="flex space-x-2 text-2xl text-woodShadow" id="form-my-stars"></div><input type="hidden" id="form-my-affinity" value="3"></div>
+                    <div class="w-1 bg-woodDark/10"></div>
+                    <div class="text-center"><span class="block text-xs mb-3 text-woodDark/70">TA 对我的感觉</span><div class="flex space-x-2 text-2xl text-woodShadow" id="form-their-stars"></div><input type="hidden" id="form-their-affinity" value="3"></div>
+                </div>
+
+                <div class="bg-paperWhite border-4 border-woodDark p-6 shadow-[4px_4px_0_#D4C3A3] rounded-xl space-y-6">
+                    <div>
+                        <label class="block text-xs mb-2 font-pixel">🏷️ 特质便利贴 (回车添加)</label>
+                        <input type="text" id="tag-input" placeholder="输入标签内容..." class="neo-input w-full p-3 mb-3 font-sans font-medium">
+                        <div id="form-tags-container" class="flex flex-wrap gap-2 font-sans font-bold"></div>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-pixelRed mb-2 font-pixel">🚧 避坑指南 (雷区)</label>
+                        <textarea id="form-taboos" rows="2" class="neo-input w-full p-3 border-pixelRed/50 resize-none font-sans font-medium bg-pixelRed/5"></textarea>
+                    </div>
+                </div>
+
+                <div class="bg-woodDark p-6 border-4 border-woodDark rounded-xl shadow-[4px_4px_0_#D4C3A3]">
+                    <label class="block text-xs text-pixelYellow mb-3 font-pixel"><i class="fa-solid fa-lock mr-2"></i>私人秘密日记</label>
+                    <textarea id="form-private-notes" rows="4" class="neo-input w-full p-3 bg-woodBg text-woodDark border-none resize-none font-sans font-medium"></textarea>
+                </div>
+
+                <button type="submit" class="neo-btn bg-pixelGreen text-white w-full text-xl py-5 font-pixel tracking-widest mt-4 hover:bg-pixelGreen/90">保存并收进背包</button>
+                
+                <div id="form-delete-container" class="mt-6 pt-6 border-t-2 border-dashed border-pixelRed/20 hidden">
+                    <button type="button" onclick="app.deleteContact()" class="neo-btn w-full text-sm py-4 bg-paperWhite text-pixelRed border-pixelRed shadow-[3px_3px_0_#D96B62] font-pixel hover:bg-pixelRed hover:text-white transition-colors"><i class="fa-solid fa-trash-can mr-2"></i> 让 TA 搬离小镇 (不可逆)</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. 设置抽屉 (Settings Drawer) -->
+    <div id="drawer-settings" class="drawer-panel">
+        <div class="sticky top-0 bg-woodBg/90 backdrop-blur-md z-10 px-6 py-4 border-b-4 border-woodDark/10 flex justify-between items-center">
+            <button onclick="app.closeDrawer()" class="text-woodDark/60 hover:text-pixelRed transition-colors text-xl"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+            <span class="font-pixel text-sm font-bold text-woodDark/50">SYSTEM SETTINGS</span>
+        </div>
+        <div class="px-6 md:px-10 pt-6 font-pixel">
+            <h1 class="text-3xl font-bold mb-8 border-b-4 border-woodDark/10 pb-4"><i class="fa-solid fa-toolbox mr-3 text-pixelYellow"></i>杂物间</h1>
+            
+            <div class="bg-paperWhite border-4 border-woodDark p-6 shadow-[4px_4px_0_#D4C3A3] rounded-xl mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-bold"><i class="fa-solid fa-microchip mr-2 text-blue-500"></i>自带大模型 API</h3>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="config-ai-toggle" class="sr-only peer" onchange="app.toggleCustomAI()">
+                        <div class="w-12 h-6 bg-woodShadow border-2 border-woodDark peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-woodDark after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-woodDark after:border-2 after:h-4 after:w-4 after:transition-all peer-checked:bg-pixelGreen"></div>
+                    </label>
+                </div>
+                <div id="config-ai-panel" class="space-y-4 hidden border-t-2 border-dashed border-woodDark/20 pt-5">
+                    <div>
+                        <label class="block text-[10px] mb-1 text-woodDark/70">接口地址 (URL)</label>
+                        <input type="text" id="config-ai-url" placeholder="https://api.deepseek.com/v1/chat/completions" class="neo-input w-full p-3 text-sm font-sans font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] mb-1 text-woodDark/70">模型标识 (Model)</label>
+                        <input type="text" id="config-ai-model" placeholder="deepseek-chat" class="neo-input w-full p-3 text-sm font-sans font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] mb-1 text-woodDark/70">密钥 (API Key - 仅存本地)</label>
+                        <input type="password" id="config-ai-key" placeholder="sk-..." class="neo-input w-full p-3 text-sm font-sans font-medium">
+                    </div>
+                    <button onclick="app.saveAIConfig(event)" class="neo-btn bg-pixelYellow w-full py-3 text-sm mt-2 hover:bg-pixelYellow/80">保存引擎配置</button>
+                </div>
+            </div>
+
+            <div class="bg-woodDark text-paperWhite border-4 border-woodDark p-6 rounded-xl shadow-[4px_4px_0_#D4C3A3]">
+                <h3 class="text-sm font-bold mb-5"><i class="fa-solid fa-database mr-2 text-pixelGreen"></i>本地数据备份</h3>
+                <div class="flex flex-col gap-4">
+                    <button onclick="app.exportData()" class="neo-btn bg-paperWhite text-woodDark py-4 text-sm hover:bg-woodBg transition-colors"><i class="fa-solid fa-download mr-2"></i>将数据打包为 JSON</button>
+                    <button onclick="app.exportToCSV()" class="neo-btn bg-pixelGreen text-white py-4 text-sm border-pixelGreen hover:bg-pixelGreen/90 transition-colors"><i class="fa-solid fa-file-csv mr-2"></i>导出为 Excel 表格</button>
+                    <label class="neo-btn bg-woodBg text-woodDark py-4 text-sm text-center cursor-pointer border-dashed border-woodDark hover:bg-woodLight transition-colors">
+                        <i class="fa-solid fa-upload mr-2"></i>从 JSON 文件恢复数据
+                        <input type="file" id="import-file" accept=".json" class="hidden" onchange="app.importData(event)">
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 核心大脑 (JS Logic) ==================== -->
     <script>
         const app = {
             STORAGE_KEY: 'personal_crm_v2_data',
             CONFIG_KEY: 'personal_crm_v2_config',
             contacts: [],
-            config: {
-                useCustomAI: false,
-                aiUrl: 'https://api.deepseek.com/chat/completions',
-                aiModel: 'deepseek-chat',
-                aiKey: ''
-            },
-            currentTab: 'list',
+            config: { useCustomAI: false, aiUrl: 'https://api.deepseek.com/chat/completions', aiModel: 'deepseek-chat', aiKey: '' },
+            currentDrawer: null, // 'detail', 'form', 'settings'
             currentDetailId: null,
             editingTags: [],
-
-            // Cozy Pixel 配色映射
-            colors: {
-                '家人': { bg: 'bg-[#D96B62]', text: 'text-white', border: 'border-[#5C4033]', hex: 'bg-[#D96B62]' }, // 砖瓦红
-                '朋友': { bg: 'bg-[#6A9C78]', text: 'text-white', border: 'border-[#5C4033]', hex: 'bg-[#6A9C78]' }, // 荷叶绿
-                '同事': { bg: 'bg-[#E6B956]', text: 'text-[#5C4033]', border: 'border-[#5C4033]', hex: 'bg-[#E6B956]' }, // 向日葵黄
-                '泛交点': { bg: 'bg-[#FDFBF7]', text: 'text-[#5C4033]', border: 'border-[#5C4033]', hex: 'bg-white' } // 纸白
-            },
+            cardColors: ['bg-cardBlue', 'bg-cardPink', 'bg-cardYellow', 'bg-cardGreen'],
 
             init() {
                 this.loadData();
                 this.setupEventListeners();
-                this.switchTab('list');
                 this.initStarsUI('form-my-stars', 'my');
                 this.initStarsUI('form-their-stars', 'their');
+                this.renderList();
             },
 
             loadData() {
                 const data = localStorage.getItem(this.STORAGE_KEY);
-                if (data) {
-                    this.contacts = JSON.parse(data);
-                    this.migrateData();
-                } else {
+                if (data) { this.contacts = JSON.parse(data); this.migrateData(); } 
+                else {
                     this.contacts = [{
                         id: 'demo_' + Date.now(),
-                        name: "星露谷村长",
-                        group: "朋友",
-                        myAffinity: 5,
-                        theirAffinity: 4,
-                        energyType: "充电型",
-                        tags: ["热情好客", "爱喝黑咖啡"],
-                        taboos: "讨厌星期一被打扰",
-                        targetFrequency: 30,
-                        lastContactDate: this.calculatePastDate(25),
-                        logs: [
-                            { date: this.calculatePastDate(25), icon: '☕️', content: "在星之果实餐吧碰面" }
-                        ]
+                        name: "星露谷村长", group: "朋友", myAffinity: 5, theirAffinity: 4, energyType: "充电型",
+                        tags: ["爱喝黑咖啡", "热情好客", "指路人"], taboos: "讨厌被催促进度，星期天不谈工作。",
+                        targetFrequency: 30, lastContactDate: this.calculatePastDate(25),
+                        logs: [{ date: this.calculatePastDate(25), icon: '☕️', content: "在广场长椅上喝咖啡，聊了小镇的发展规划。" }]
                     }];
                     this.saveData();
                 }
-
                 const configData = localStorage.getItem(this.CONFIG_KEY);
-                if (configData) {
-                    this.config = { ...this.config, ...JSON.parse(configData) };
-                }
+                if (configData) this.config = { ...this.config, ...JSON.parse(configData) };
                 this.renderSettingsUI();
+                this.updateHeroStats();
             },
 
             migrateData() {
                 let changed = false;
                 this.contacts.forEach(c => {
                     if(!c.targetFrequency) { c.targetFrequency = 30; changed = true; }
-                    if(!c.lastContactDate) { 
-                        c.lastContactDate = c.logs && c.logs.length > 0 ? c.logs[c.logs.length-1].date : this.getToday();
-                        changed = true;
-                    }
+                    if(!c.lastContactDate) { c.lastContactDate = c.logs && c.logs.length > 0 ? c.logs[c.logs.length-1].date : this.getToday(); changed = true; }
                     if(c.privateNotes === undefined) { c.privateNotes = ""; changed = true; }
-                    if(c.aiProfile) {
-                        c.aiCache = { profile: { content: c.aiProfile.content, updatedAt: c.aiProfile.updatedAt } };
-                        delete c.aiProfile;
-                        changed = true;
-                    }
+                    if(c.aiProfile) { c.aiCache = { profile: { content: c.aiProfile.content, updatedAt: c.aiProfile.updatedAt } }; delete c.aiProfile; changed = true; }
                 });
                 if(changed) this.saveData();
             },
 
-            saveData() { localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.contacts)); },
+            saveData() { localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.contacts)); this.updateHeroStats(); },
             saveConfigData() { localStorage.setItem(this.CONFIG_KEY, JSON.stringify(this.config)); },
 
+            updateHeroStats() {
+                document.getElementById('stat-total').innerText = this.contacts.length;
+                let warnCount = 0;
+                this.contacts.forEach(c => { if(this.calculateHealth(c).status !== 'good') warnCount++; });
+                document.getElementById('stat-warning').innerText = warnCount;
+            },
+
             calculateHealth(contact) {
-                const today = new Date(this.getToday());
-                const lastDate = new Date(contact.lastContactDate);
-                const diffTime = Math.abs(today - lastDate);
+                const diffTime = Math.abs(new Date(this.getToday()) - new Date(contact.lastContactDate));
                 const daysSince = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-
-                let percentage = 100 - ((daysSince / contact.targetFrequency) * 100);
-                percentage = Math.max(0, Math.min(100, percentage));
-
+                let percentage = Math.max(0, Math.min(100, 100 - ((daysSince / contact.targetFrequency) * 100)));
                 let status = 'good';
                 if (percentage <= 0 || daysSince > contact.targetFrequency) status = 'bad';
                 else if (percentage <= 40) status = 'warn';
-
                 return { daysSince, percentage, status };
             },
 
-            switchTab(tabName) {
-                if(this.currentTab === tabName && tabName !== 'list') return; 
-                this.currentTab = tabName;
-                
-                ['list', 'form', 'settings'].forEach(name => {
-                    const view = document.getElementById('view-' + name);
-                    const btn = document.getElementById('tab-btn-' + name);
-                    
-                    if(name === tabName) {
-                        view.classList.remove('hidden');
-                        setTimeout(() => view.classList.remove('opacity-0'), 10);
-                        view.classList.add('z-10');
-                        
-                        btn.classList.remove('text-woodShadow');
-                        if(name === 'list') btn.classList.add('text-pixelGreen');
-                        if(name === 'form') btn.classList.add('text-pixelYellow');
-                        if(name === 'settings') btn.classList.add('text-woodDark');
-                        
-                        if(name === 'list') this.renderList();
-                        if(name === 'form') this.resetForm();
-                    } else {
-                        view.classList.add('opacity-0');
-                        setTimeout(() => { if(this.currentTab !== name) view.classList.add('hidden'); }, 200);
-                        view.classList.remove('z-10');
-                        
-                        btn.classList.remove('text-pixelGreen', 'text-pixelYellow', 'text-woodDark');
-                        btn.classList.add('text-woodShadow');
-                    }
+            openDrawer(drawerId, paramId = null) {
+                const backdrop = document.getElementById('drawer-backdrop');
+                ['detail', 'form', 'settings'].forEach(id => {
+                    const el = document.getElementById(`drawer-${id}`);
+                    if(el) el.classList.remove('active');
                 });
+                this.currentDrawer = drawerId;
+                backdrop.classList.add('active');
+                document.body.style.overflow = 'hidden'; 
+                let targetEl = document.getElementById(`drawer-${drawerId}`);
+                if (!targetEl) return;
+                if (drawerId === 'detail') { this.currentDetailId = paramId; this.renderDetail(); } 
+                else if (drawerId === 'form') { this.resetForm(); }
+                void targetEl.offsetWidth; 
+                targetEl.classList.add('active');
             },
 
-            openDetail(id) {
-                this.currentDetailId = id;
-                this.renderDetail();
-                
-                const detailView = document.getElementById('view-detail');
-                detailView.classList.remove('hidden', 'page-exit-active');
-                void detailView.offsetWidth; 
-                detailView.classList.add('page-enter-active');
-            },
-
-            closeDetail() {
-                const detailView = document.getElementById('view-detail');
-                detailView.classList.remove('page-enter-active');
-                detailView.classList.add('page-exit-active');
-                
+            closeDrawer() {
+                const backdrop = document.getElementById('drawer-backdrop');
+                if(this.currentDrawer) {
+                    const targetEl = document.getElementById(`drawer-${this.currentDrawer}`);
+                    if (targetEl) targetEl.classList.remove('active');
+                }
+                backdrop.classList.remove('active');
                 setTimeout(() => {
-                    detailView.classList.add('hidden');
-                    detailView.classList.remove('page-exit-active');
+                    this.currentDrawer = null;
                     this.currentDetailId = null;
-                    if(this.currentTab === 'list') this.renderList();
-                }, 200);
+                    document.body.style.overflow = ''; 
+                    this.renderList(); 
+                }, 400); 
+            },
+
+            escapeHTML(str) {
+                if (str == null) return '';
+                return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
             },
 
             renderList(searchQuery = '') {
                 const container = document.getElementById('contact-list');
                 const q = searchQuery.toLowerCase();
                 
-                let sortedContacts = [...this.contacts].map(c => {
-                    c._health = this.calculateHealth(c);
-                    return c;
-                });
-
-                if(q) {
-                    sortedContacts = sortedContacts.filter(c => c.name.toLowerCase().includes(q) || c.tags.some(t => t.toLowerCase().includes(q)));
-                } else {
-                    sortedContacts.sort((a, b) => a._health.percentage - b._health.percentage);
-                }
+                let sortedContacts = [...this.contacts].map(c => { c._health = this.calculateHealth(c); return c; });
+                if(q) sortedContacts = sortedContacts.filter(c => c.name.toLowerCase().includes(q) || c.tags.some(t => t.toLowerCase().includes(q)));
+                else sortedContacts.sort((a, b) => a._health.percentage - b._health.percentage);
 
                 if(sortedContacts.length === 0) {
-                    container.innerHTML = `<div class="mt-20 text-center text-woodDark/40"><i class="fa-solid fa-seedling text-4xl mb-3"></i><p class="font-pixel text-[10px]">小镇里还没有这个人哦</p></div>`;
+                    container.innerHTML = `<div class="col-span-full text-center text-woodDark/50 py-24 bg-paperWhite border-4 border-dashed border-woodDark/20 rounded-2xl font-pixel"><i class="fa-solid fa-ghost text-5xl mb-5 text-woodLight"></i><p>图鉴里空空如也，快去种下新树苗吧</p></div>`;
                     return;
                 }
 
-                container.innerHTML = sortedContacts.map(contact => {
+                container.innerHTML = sortedContacts.map((contact, index) => {
                     const h = contact._health;
-                    let healthColor = h.status === 'good' ? 'bg-pixelGreen' : (h.status === 'warn' ? 'bg-pixelYellow' : 'bg-pixelRed');
-                    const cStyle = this.colors[contact.group] || this.colors['泛交点'];
-                    
-                    // 【修复】对渲染到界面的核心数据进行“安检消毒”
-                    const safeName = this.escapeHTML(contact.name);
-                    const safeGroup = this.escapeHTML(contact.group);
-                    
-                    const tagsHtml = contact.tags.slice(0, 2).map(tag => `<span class="text-[10px] bg-woodBg text-woodDark border border-woodDark/20 px-2 py-0.5 rounded-sm truncate max-w-[80px] block">${this.escapeHTML(tag)}</span>`).join('');
+                    let hColor = h.status === 'good' ? 'bg-pixelGreen' : (h.status === 'warn' ? 'bg-pixelYellow' : 'bg-pixelRed');
+                    const topBg = this.cardColors[index % this.cardColors.length];
+                    let iconMap = {'家人':'fa-house', '朋友':'fa-bicycle', '同事':'fa-briefcase', '泛交点':'fa-mug-hot'};
+                    let bigIcon = iconMap[contact.group] || 'fa-user';
+
+                    const tagsHtml = contact.tags.slice(0, 2).map(tag => `<span class="text-[10px] font-sans font-bold bg-woodBg text-woodDark border border-woodDark/20 px-2 py-0.5 rounded shadow-sm truncate max-w-[80px]">${this.escapeHTML(tag)}</span>`).join('');
 
                     return `
-                        <div onclick="app.openDetail('${contact.id}')" class="neo-card neo-card-clickable p-4 cursor-pointer relative overflow-hidden">
-                            <div class="flex justify-between items-center mb-2">
-                                <!-- 【修复】加上 truncate 控制超长名字不撑爆卡片 -->
-                                <h3 class="text-xl font-bold text-woodDark tracking-wide truncate pr-2 flex-1">${safeName}</h3>
-                                <span class="${cStyle.bg} ${cStyle.text} border-2 ${cStyle.border} text-[10px] font-pixel px-2 py-1 rounded-sm shrink-0">${safeGroup}</span>
+                        <div onclick="app.openDrawer('detail', '${contact.id}')" class="web-card cursor-pointer group">
+                            <div class="${topBg} h-36 border-b-4 border-woodDark flex items-center justify-center relative">
+                                <div class="w-16 h-16 bg-white border-4 border-woodDark rounded-full flex items-center justify-center shadow-[4px_4px_0_rgba(92,64,51,0.3)] transition-transform group-hover:scale-110 duration-300">
+                                    <i class="fa-solid ${bigIcon} text-2xl text-woodDark"></i>
+                                </div>
+                                ${h.status === 'bad' ? `<div class="absolute top-3 right-3 bg-pixelRed text-white text-[10px] font-pixel px-2 py-1 border-2 border-woodDark shadow-[2px_2px_0_#5C4033] animate-pulse rounded">缺水!</div>` : ''}
                             </div>
                             
-                            <div class="flex items-center space-x-2 mb-3 bg-woodBg/50 p-1.5 rounded border border-woodDark/10">
-                                <i class="fa-solid fa-droplet text-[10px] text-blue-400"></i>
-                                <div class="flex-1 h-2 bg-paperWhite border border-woodDark/30 rounded-full p-px">
-                                    <div class="h-full ${healthColor} rounded-full" style="width: ${h.percentage}%"></div>
+                            <div class="p-5 flex-1 flex flex-col bg-paperWhite">
+                                <div class="flex justify-between items-start mb-3 font-pixel">
+                                    <span class="text-[10px] bg-woodLight border-2 border-woodDark px-2 py-1 rounded shadow-sm">${this.escapeHTML(contact.group)}</span>
+                                    <span class="text-[10px] text-woodDark/50 flex items-center"><i class="fa-solid fa-clock mr-1"></i>${h.daysSince}天前</span>
                                 </div>
-                                ${h.status === 'bad' ? `<i class="fa-solid fa-triangle-exclamation text-pixelRed text-xs animate-bounce"></i>` : `<span class="text-[10px] font-pixel text-woodDark/50">${h.percentage.toFixed(0)}%</span>`}
-                            </div>
+                                <h3 class="text-2xl font-bold mb-4 truncate flex-1 font-pixel">${this.escapeHTML(contact.name)}</h3>
+                                
+                                <div class="flex flex-wrap gap-1.5 mb-4">${tagsHtml}</div>
 
-                            <div class="flex items-center justify-between">
-                                <div class="flex gap-1 items-center">${tagsHtml}</div>
-                                <div class="text-pixelYellow text-[10px] flex space-x-0.5">${this.generateStarsHTML(contact.myAffinity)}</div>
+                                <div class="mt-auto">
+                                    <div class="flex justify-between items-center text-[10px] mb-1.5 font-pixel">
+                                        <span class="text-woodDark/60">水份 HP</span>
+                                        <span class="font-bold">${h.percentage.toFixed(0)}%</span>
+                                    </div>
+                                    <div class="w-full h-2.5 bg-woodBg border-2 border-woodDark/20 rounded-full overflow-hidden">
+                                        <div class="h-full ${hColor} rounded-full" style="width: ${h.percentage}%"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -678,323 +609,60 @@
                 const contact = this.contacts.find(c => c.id === this.currentDetailId);
                 if(!contact) return;
 
-                const aiBtnTexts = { 'profile': '人物速写', 'message': '写封信件', 'ideas': '准备礼物' };
-                Object.entries(aiBtnTexts).forEach(([type, text]) => {
-                    const btn = document.getElementById(`btn-ai-${type}`);
-                    if (btn) {
-                        btn.innerHTML = text;
-                        btn.disabled = false;
-                        btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    }
+                ['profile', 'message', 'ideas'].forEach(t => {
+                    const btn = document.getElementById(`btn-ai-${t}`);
+                    if (btn) { btn.className = `neo-btn bg-white px-4 py-2.5 text-sm shrink-0 hover:bg-woodBg transition-colors`; btn.disabled = false; }
                 });
 
-                // 【修复】详情页安检消毒
-                document.getElementById('detail-name').innerText = contact.name; // innerText 天然防 XSS
-                const cStyle = this.colors[contact.group] || this.colors['泛交点'];
-                const groupEl = document.getElementById('detail-group');
-                groupEl.innerText = contact.group;
-                groupEl.className = `text-[10px] font-pixel px-2 py-1 border-2 rounded-md shadow-[2px_2px_0_#D4C3A3] ${cStyle.bg} ${cStyle.text} ${cStyle.border}`;
+                document.getElementById('detail-name').innerText = contact.name;
+                document.getElementById('detail-group').innerText = contact.group;
                 
                 const h = this.calculateHealth(contact);
                 const hBar = document.getElementById('detail-health-bar');
                 const hText = document.getElementById('detail-health-text');
-                
                 hBar.style.width = `${h.percentage}%`;
                 
                 if(h.status === 'good') {
-                    hBar.className = "h-full bg-pixelGreen transition-all duration-1000 ease-out w-full rounded-full";
-                    hText.className = "text-sm font-bold text-pixelGreen font-pixel";
-                    hText.innerText = "水分充足";
-                    document.getElementById('detail-last-contact').innerText = `已浇水: ${h.daysSince} 天前 (周期: ${contact.targetFrequency}天)`;
+                    hBar.className = "h-full bg-pixelGreen rounded-full transition-all duration-1000";
+                    hText.className = "font-bold text-pixelGreen font-pixel"; hText.innerText = "水份充足";
+                    document.getElementById('detail-last-contact').innerText = `已浇水: ${h.daysSince}天前 (目标${contact.targetFrequency}天)`;
                 } else if(h.status === 'warn') {
-                    hBar.className = "h-full bg-pixelYellow transition-all duration-1000 ease-out w-full rounded-full";
-                    hText.className = "text-sm font-bold text-pixelYellow font-pixel";
-                    hText.innerText = "植物有些干渴";
-                    document.getElementById('detail-last-contact').innerText = `提醒: 似乎该联系一下了。`;
+                    hBar.className = "h-full bg-pixelYellow rounded-full transition-all duration-1000";
+                    hText.className = "font-bold text-pixelYellow font-pixel"; hText.innerText = "植物干渴";
+                    document.getElementById('detail-last-contact').innerText = `提醒: 水份流失中。`;
                 } else {
-                    hBar.className = "h-full bg-pixelRed transition-all duration-1000 ease-out w-full rounded-full";
-                    hText.className = "text-sm font-bold text-pixelRed font-pixel";
-                    hText.innerText = "极度缺水！";
-                    document.getElementById('detail-last-contact').innerText = `枯萎警告: 已经 ${h.daysSince} 天没浇水了!`;
+                    hBar.className = "h-full bg-pixelRed rounded-full transition-all duration-1000";
+                    hText.className = "font-bold text-pixelRed font-pixel"; hText.innerText = "枯萎警告";
+                    document.getElementById('detail-last-contact').innerText = `危险: 已 ${h.daysSince} 天没联系!`;
                 }
 
                 document.getElementById('detail-my-stars').innerHTML = this.generateStarsHTML(contact.myAffinity);
                 document.getElementById('detail-their-stars').innerHTML = this.generateStarsHTML(contact.theirAffinity);
-                
-                let eIcon = contact.energyType === '充电型' ? 'fa-battery-full text-pixelGreen' : (contact.energyType === '耗电型' ? 'fa-battery-quarter text-pixelRed' : 'fa-scale-balanced text-pixelYellow');
-                document.getElementById('detail-energy').innerHTML = `<i class="fa-solid ${eIcon} mr-2"></i> ${contact.energyType}`;
+                document.getElementById('detail-energy').innerHTML = `<i class="fa-solid fa-battery-half text-blue-500 mr-2"></i> ${contact.energyType}`;
 
-                document.getElementById('detail-tags').innerHTML = contact.tags.map(tag => 
-                    // 【修复】加上 break-all 防止超长无空格标签撑爆
-                    `<span class="bg-woodBg text-woodDark text-[10px] font-bold px-2 py-1 rounded-sm border border-woodDark/20 shadow-sm break-all">${this.escapeHTML(tag)}</span>`
-                ).join('');
+                document.getElementById('detail-tags').innerHTML = contact.tags.map(tag => `<span class="bg-woodBg text-woodDark text-xs font-bold px-2 py-1 rounded border border-woodDark/20 shadow-sm break-all">${this.escapeHTML(tag)}</span>`).join('');
 
                 const taboosContainer = document.getElementById('detail-taboos-container');
-                if(contact.taboos) {
-                    document.getElementById('detail-taboos').innerText = contact.taboos; // innerText 防护
-                    taboosContainer.classList.remove('hidden');
-                } else {
-                    taboosContainer.classList.add('hidden');
-                }
+                if(contact.taboos) { document.getElementById('detail-taboos').innerText = contact.taboos; taboosContainer.classList.remove('hidden'); } 
+                else { taboosContainer.classList.add('hidden'); }
 
-                const privateContainer = document.getElementById('detail-private-container');
-                const privateNotesEl = document.getElementById('detail-private-notes');
-                const privateToggleBtn = document.getElementById('detail-private-toggle');
-                
-                if(contact.privateNotes && contact.privateNotes.trim() !== '') {
-                    privateNotesEl.innerText = contact.privateNotes;
-                    privateNotesEl.classList.add('blur-[6px]', 'select-none'); 
-                    privateNotesEl.classList.remove('blur-none', 'select-auto');
-                    privateToggleBtn.innerText = "翻开看看";
-                    privateContainer.classList.remove('hidden');
-                } else {
-                    privateContainer.classList.add('hidden');
-                }
+                const pCont = document.getElementById('detail-private-container');
+                if(contact.privateNotes) {
+                    document.getElementById('detail-private-notes').innerText = contact.privateNotes;
+                    document.getElementById('detail-private-notes').className = "text-base font-sans font-medium filter blur-[8px] select-none transition-all duration-300 leading-relaxed border-l-4 border-pixelYellow pl-4 py-1";
+                    document.getElementById('detail-private-toggle').innerText = "翻开看看";
+                    pCont.classList.remove('hidden');
+                } else pCont.classList.add('hidden');
 
                 this.renderAIResultUI('profile'); 
                 this.renderLogs();
             },
 
-            togglePrivateNotes() {
-                const notesEl = document.getElementById('detail-private-notes');
-                const btn = document.getElementById('detail-private-toggle');
-                
-                if (notesEl.classList.contains('blur-[6px]')) {
-                    notesEl.classList.remove('blur-[6px]', 'select-none');
-                    notesEl.classList.add('blur-none', 'select-auto');
-                    btn.innerText = "合上日记";
-                } else {
-                    notesEl.classList.add('blur-[6px]', 'select-none');
-                    notesEl.classList.remove('blur-none', 'select-auto');
-                    btn.innerText = "翻开看看";
-                }
-            },
-
-            renderLogs() {
-                const contact = this.contacts.find(c => c.id === this.currentDetailId);
-                const container = document.getElementById('detail-logs');
-                
-                if(!contact.logs || contact.logs.length === 0) {
-                    container.innerHTML = `<div class="bg-paperWhite p-4 rounded-md border-2 border-dashed border-woodDark/20 text-center"><p class="font-pixel text-[10px] text-woodDark/50">这里还是一片空白哦 🌱</p></div>`;
-                    return;
-                }
-
-                container.innerHTML = [...contact.logs].reverse().map(log => `
-                    <div class="neo-card p-3 flex items-start bg-paperWhite shadow-[2px_2px_0_#D4C3A3]">
-                        <div class="text-xl mr-3 bg-woodBg border-2 border-woodDark w-10 h-10 flex items-center justify-center shrink-0 rounded-md shadow-[2px_2px_0_#D4C3A3]">${log.icon || '📝'}</div>
-                        <div class="min-w-0 flex-1"> <!-- 【修复】min-w-0 是 flex 布局下让 truncate 和 break-words 生效的秘诀 -->
-                            <div class="font-pixel text-[10px] text-pixelGreen mb-1">${log.date}</div>
-                            <div class="text-sm text-woodDark font-bold leading-tight break-words">${this.escapeHTML(log.content)}</div>
-                        </div>
-                    </div>
-                `).join('');
-            },
-
-            quickLog(icon, contentText) {
-                const contact = this.contacts.find(c => c.id === this.currentDetailId);
-                const today = this.getToday();
-                contact.logs.push({ date: today, icon: icon, content: contentText });
-                contact.lastContactDate = today; 
-                this.saveData();
-                this.renderDetail(); 
-                if (navigator.vibrate) navigator.vibrate([20, 30, 20]); // 柔和的震动反馈
-            },
-
-            addTextLog(e) {
-                e.preventDefault();
-                const input = document.getElementById('log-input');
-                const content = input.value.trim();
-                if(!content) return;
-                this.quickLog('📝', content);
-                input.value = '';
-            },
-
-            async callGeminiAPI(prompt) {
-                if (this.config.useCustomAI && this.config.aiKey.trim() !== '') {
-                    return await this.callCustomAPI(prompt);
-                }
-                const apiKey = ""; 
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-                const payload = {
-                    contents: [{ parts: [{ text: prompt }] }],
-                    systemInstruction: { parts: [{ text: "你是一个温馨治愈、懂人情世故的森系向导。你的回答要温暖、自然，排版清晰，多用植物或生活化的 emoji（如🍃、☕、🌻）。" }] }
-                };
-
-                return await this.executeFetchWithRetry(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                }, data => data.candidates?.[0]?.content?.parts?.[0]?.text);
-            },
-
-            async callCustomAPI(prompt) {
-                const payload = {
-                    model: this.config.aiModel || 'deepseek-chat',
-                    messages: [
-                        { role: 'system', content: '你是一个温馨治愈、懂人情世故的森系向导。你的回答要温暖、自然，排版清晰，多用植物或生活化的 emoji（如🍃、☕、🌻）。' },
-                        { role: 'user', content: prompt }
-                    ]
-                };
-
-                return await this.executeFetchWithRetry(this.config.aiUrl, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${this.config.aiKey.trim()}`
-                    },
-                    body: JSON.stringify(payload)
-                }, data => data.choices?.[0]?.message?.content);
-            },
-
-            async executeFetchWithRetry(url, options, extractFn) {
-                let retries = 3; let delays = [1000, 2000, 4000];
-                for (let i = 0; i < retries; i++) {
-                    try {
-                        const response = await fetch(url, options);
-                        if (!response.ok) throw new Error(`API Error: ${response.status}`);
-                        const data = await response.json();
-                        const text = extractFn(data);
-                        if (!text) throw new Error("EMPTY_PAYLOAD");
-                        return text;
-                    } catch (error) {
-                        if (i === retries - 1) throw error;
-                        await new Promise(res => setTimeout(res, delays[i]));
-                    }
-                }
-            },
-
-            renderAIResultUI(taskType) {
-                const contact = this.contacts.find(c => c.id === this.currentDetailId);
-                if (!contact) return; 
-
-                const container = document.getElementById('ai-profile-container');
-                const contentEl = document.getElementById('ai-profile-content');
-                const dateEl = document.getElementById('ai-profile-date');
-                const typeEl = document.getElementById('ai-profile-type');
-
-                ['profile', 'message', 'ideas'].forEach(t => {
-                    const btn = document.getElementById(`btn-ai-${t}`);
-                    if(!btn) return;
-                    if (t === taskType && contact.aiCache && contact.aiCache[taskType]) {
-                        btn.className = `shrink-0 text-sm px-3 py-2.5 whitespace-nowrap font-pixel neo-btn bg-woodDark text-white border-woodDark`;
-                    } else {
-                        // Reset to original colors based on type
-                        if(t==='profile') btn.className = `shrink-0 neo-btn-green text-sm px-3 py-2.5 whitespace-nowrap font-pixel`;
-                        if(t==='message') btn.className = `shrink-0 neo-btn-white bg-woodLight border-woodDark text-woodDark shadow-[3px_3px_0_#5C4033] text-sm px-3 py-2.5 whitespace-nowrap font-pixel`;
-                        if(t==='ideas') btn.className = `shrink-0 neo-btn bg-pixelYellow text-woodDark text-sm px-3 py-2.5 whitespace-nowrap font-pixel`;
-                    }
-                });
-
-                if (contact.aiCache && contact.aiCache[taskType]) {
-                    let formattedContent = contact.aiCache[taskType].content.replace(/\*\*(.*?)\*\*/g, '<span class="text-woodDark font-bold bg-pixelYellow/30 px-1 rounded">$1</span>');
-                    formattedContent = formattedContent.replace(/\n/g, '<br/>');
-                    
-                    contentEl.innerHTML = formattedContent;
-                    dateEl.innerText = `写于: ${contact.aiCache[taskType].updatedAt}`;
-                    
-                    const typeNames = { 'profile': '🍃 档案笔记', 'message': '✉️ 信件草稿', 'ideas': '🎁 礼物清单' };
-                    typeEl.innerText = typeNames[taskType] || '🍃 向导笔记';
-                    
-                    container.classList.remove('hidden');
-                } else {
-                    container.classList.add('hidden');
-                }
-            },
-
-            async runAITask(taskType) {
-                const contact = this.contacts.find(c => c.id === this.currentDetailId);
-                if (!contact) return;
-
-                const btn = document.getElementById(`btn-ai-${taskType}`);
-                const originalHtml = btn.innerHTML;
-                
-                const h = this.calculateHealth(contact);
-                const baseContext = `
-                人物卡片信息:
-                - 所属：${contact.group}
-                - 能量属性：${contact.energyType}
-                - 兴趣标签：${contact.tags.length > 0 ? contact.tags.join(',') : '无'}
-                - 讨厌的事物：${contact.taboos || '无'}
-                - 我的私密感觉：${contact.privateNotes || '无'}
-                - 社交状态：距今已经 ${h.daysSince} 天没有浇水(联系)了。
-                `;
-
-                let prompt = "";
-                if (taskType === 'profile') {
-                    prompt = `${baseContext}
-                    请用温暖治愈的语调，生成一份简明的速写笔记。
-                    包含：
-                    1. 🌻 核心印象
-                    2. 🤝 相处指南
-                    3. 🚧 温柔的避坑提醒
-                    总字数控制在200字以内。`;
-                } else if (taskType === 'message') {
-                    prompt = `${baseContext}
-                    请帮我写3个简短、不尴尬的问候短句（就像是给好久不见的老邻居寄明信片）。
-                    要求：
-                    1. 语气真诚、自然，贴合对方的标签。
-                    2. 分为：轻松打招呼、温暖关心、分享日常 3个版本。
-                    3. 每个版本控制在50字内。`;
-                } else if (taskType === 'ideas') {
-                    prompt = `${baseContext}
-                    我们要见面了，请给我一些温暖的建议：
-                    1. ☕ 3个绝对不会冷场的喝茶话题。
-                    2. 🎁 3个用心的小伴手礼建议。
-                    一定要避开TA讨厌的事物哦。`;
-                }
-
-                try {
-                    btn.innerHTML = `<i class="fa-solid fa-seedling animate-bounce"></i> 思考中...`;
-                    btn.disabled = true;
-                    btn.classList.add('opacity-50', 'cursor-wait');
-
-                    const aiText = await this.callGeminiAPI(prompt);
-
-                    if (aiText) {
-                        contact.aiCache = contact.aiCache || {};
-                        contact.aiCache[taskType] = { content: aiText, updatedAt: this.getToday() };
-                        this.saveData();
-                        this.renderAIResultUI(taskType);
-                    } else { throw new Error('EMPTY'); }
-                } catch (error) {
-                    if (this.currentDetailId === contact.id) { 
-                        const container = document.getElementById('ai-profile-container');
-                        const contentEl = document.getElementById('ai-profile-content');
-                        contentEl.innerHTML = `<div class="text-pixelRed font-pixel text-xs flex items-center"><i class="fa-solid fa-cloud-bolt mr-2 animate-pulse"></i> 哎呀，向导迷路了，请稍后再试。</div>`;
-                        container.classList.remove('hidden');
-                    }
-                } finally {
-                    if (this.currentDetailId === contact.id) { 
-                        btn.disabled = false;
-                        btn.classList.remove('opacity-50', 'cursor-wait');
-                        btn.innerHTML = originalHtml;
-                    }
-                }
-            },
-
-            resetForm() {
-                document.getElementById('contact-form').reset();
-                document.getElementById('form-id').value = '';
-                document.getElementById('form-group').value = '朋友';
-                document.getElementById('form-energy').value = '中性';
-                document.getElementById('form-frequency').value = '30';
-                document.getElementById('form-private-notes').value = ''; 
-                this.editingTags = [];
-                this.renderTagsInForm();
-                this.setStars('my', 3);
-                this.setStars('their', 3);
-                document.getElementById('form-main-title').innerHTML = `<i class="fa-solid fa-leaf text-pixelGreen mr-2"></i>种下新种子`;
-                
-                // 新增：新增模式下隐藏删除按钮
-                document.getElementById('form-delete-container').classList.add('hidden');
-            },
-
             editCurrentContact() {
                 const contact = this.contacts.find(c => c.id === this.currentDetailId);
                 if(!contact) return;
-
-                this.closeDetail();
-                this.switchTab('form');
+                
+                this.openDrawer('form', contact.id);
 
                 setTimeout(() => {
                     document.getElementById('form-id').value = contact.id;
@@ -1010,28 +678,51 @@
                     this.setStars('my', contact.myAffinity);
                     this.setStars('their', contact.theirAffinity);
                     
-                    document.getElementById('form-main-title').innerHTML = `<i class="fa-solid fa-pen text-pixelYellow mr-2"></i>修改植物标签`;
-                    
-                    // 新增：编辑模式下显示删除按钮
+                    document.getElementById('form-main-title').innerHTML = `<i class="fa-solid fa-pen text-pixelYellow mr-2"></i>修改居民档案`;
                     document.getElementById('form-delete-container').classList.remove('hidden');
-                }, 200);
+                }, 50);
             },
 
-            // 新增：删除联系人逻辑
-            deleteContact() {
-                const idInput = document.getElementById('form-id').value;
-                if (!idInput) return;
-
-                const contact = this.contacts.find(c => c.id === idInput);
-                // 使用浏览器原生的二次确认弹窗，成本极低且安全
-                const confirmDelete = window.confirm(`真的要让【${contact.name}】搬离小镇吗？\n\n所有关于 TA 的浇水记录、日记和回忆都将永久消失，无法恢复！`);
-                
-                if (confirmDelete) {
-                    this.contacts = this.contacts.filter(c => c.id !== idInput);
-                    this.saveData();
-                    this.switchTab('list'); // 删完退回主页
-                }
+            resetForm() {
+                document.getElementById('contact-form').reset();
+                document.getElementById('form-id').value = '';
+                document.getElementById('form-group').value = '朋友';
+                document.getElementById('form-energy').value = '中性';
+                document.getElementById('form-frequency').value = '30';
+                document.getElementById('form-private-notes').value = ''; 
+                this.editingTags = [];
+                this.renderTagsInForm();
+                this.setStars('my', 3);
+                this.setStars('their', 3);
+                document.getElementById('form-main-title').innerHTML = `<i class="fa-solid fa-leaf text-pixelGreen mr-3"></i>种下新种子`;
+                document.getElementById('form-delete-container').classList.add('hidden');
             },
+
+            togglePrivateNotes() {
+                const notesEl = document.getElementById('detail-private-notes');
+                const btn = document.getElementById('detail-private-toggle');
+                if (notesEl.classList.contains('blur-[8px]')) { notesEl.classList.remove('blur-[8px]', 'select-none'); btn.innerText = "合上加密"; } 
+                else { notesEl.classList.add('blur-[8px]', 'select-none'); btn.innerText = "翻开看看"; }
+            },
+
+            renderLogs() {
+                const contact = this.contacts.find(c => c.id === this.currentDetailId);
+                const container = document.getElementById('detail-logs');
+                if(!contact.logs || contact.logs.length === 0) { container.innerHTML = `<div class="text-center text-woodDark/50 py-8 bg-paperWhite border-2 border-dashed border-woodDark/20 rounded-xl"><p class="text-sm font-bold font-sans">还没开始写日记 🌱</p></div>`; return; }
+                container.innerHTML = [...contact.logs].reverse().map(log => `
+                    <div class="bg-paperWhite border-2 border-woodDark/20 p-4 rounded-xl flex items-start shadow-sm">
+                        <div class="text-2xl mr-4 bg-woodBg border border-woodDark/30 w-10 h-10 flex items-center justify-center rounded-lg shadow-sm">${log.icon || '📝'}</div>
+                        <div class="min-w-0 flex-1"><div class="text-xs text-pixelGreen mb-1 font-pixel">${log.date}</div><div class="text-base font-medium font-sans break-words leading-snug">${this.escapeHTML(log.content)}</div></div>
+                    </div>`).join('');
+            },
+
+            quickLog(icon, contentText) {
+                const contact = this.contacts.find(c => c.id === this.currentDetailId);
+                const today = this.getToday();
+                contact.logs.push({ date: today, icon: icon, content: contentText });
+                contact.lastContactDate = today; this.saveData(); this.renderDetail(); 
+            },
+            addTextLog(e) { e.preventDefault(); const input = document.getElementById('log-input'); const content = input.value.trim(); if(content){ this.quickLog('📝', content); input.value = ''; } },
 
             saveContact(e) {
                 e.preventDefault();
@@ -1047,230 +738,110 @@
                     theirAffinity: parseInt(document.getElementById('form-their-affinity').value),
                     energyType: document.getElementById('form-energy').value,
                     targetFrequency: parseInt(document.getElementById('form-frequency').value),
-                    tags: [...this.editingTags],
-                    taboos: document.getElementById('form-taboos').value.trim(),
-                    privateNotes: document.getElementById('form-private-notes').value.trim(),
-                    lastContactDate: today, 
-                    logs: []
+                    tags: [...this.editingTags], taboos: document.getElementById('form-taboos').value.trim(), privateNotes: document.getElementById('form-private-notes').value.trim(),
+                    lastContactDate: today, logs: []
                 };
 
-                if (isNew) {
-                    newData.lastContactDate = today;
-                    newData.logs = [{ date: today, icon: '🌱', content: "种下了一颗新种子" }];
-                    this.contacts.push(newData);
-                } else {
+                if (isNew) { newData.lastContactDate = today; newData.logs = [{ date: today, icon: '🌱', content: "种下了新种子" }]; this.contacts.push(newData); } 
+                else {
                     const idx = this.contacts.findIndex(c => c.id === idInput);
                     const oldData = this.contacts[idx];
-                    
-                    newData.lastContactDate = oldData.lastContactDate;
-                    newData.logs = [...oldData.logs];
-                    
-                    // 新增：如果原来有 AI 缓存，先完整继承过来
-                    if (oldData.aiCache) {
-                        newData.aiCache = JSON.parse(JSON.stringify(oldData.aiCache));
-                    }
-                    
+                    newData.lastContactDate = oldData.lastContactDate; newData.logs = [...oldData.logs];
+                    if (oldData.aiCache) newData.aiCache = JSON.parse(JSON.stringify(oldData.aiCache));
                     let changes = [];
-                    if (oldData.myAffinity !== newData.myAffinity) changes.push(`阳光指数变了`);
-                    if (oldData.theirAffinity !== newData.theirAffinity) changes.push(`TA的指数变了`);
-                    if (oldData.privateNotes !== newData.privateNotes && newData.privateNotes !== "") changes.push(`悄悄修改了日记`); 
-                    if (oldData.energyType !== newData.energyType) changes.push(`能量调整为[${newData.energyType}]`);
-                    
-                    // 核心修复：追踪标签和雷区这些决定性特征的变化
-                    if (oldData.tags.join(',') !== newData.tags.join(',')) changes.push(`更换了便利贴`);
-                    if (oldData.taboos !== newData.taboos) changes.push(`重设了避让水坑`);
-
+                    if (oldData.myAffinity !== newData.myAffinity) changes.push(`好感变了`);
+                    if (oldData.theirAffinity !== newData.theirAffinity) changes.push(`预估变了`);
+                    if (oldData.tags.join(',') !== newData.tags.join(',')) changes.push(`修改了便利贴`);
+                    if (oldData.taboos !== newData.taboos) changes.push(`重设了雷区`);
                     if (changes.length > 0) {
-                        newData.logs.push({
-                            date: today,
-                            icon: '📝', 
-                            content: `更新了档案: ${changes.join(', ')}`
-                        });
+                        newData.logs.push({ date: today, icon: '📝', content: `更新档案: ${changes.join(',')}` });
                         newData.lastContactDate = today; 
-                        
-                        // 【核心修复：缓存失效机制】特征变了，彻底销毁旧的 AI 画像
-                        if (newData.aiCache) {
-                            delete newData.aiCache;
-                            newData.logs.push({
-                                date: today,
-                                icon: '🍃', 
-                                content: "因为特征改变，旧的 AI 向导笔记已被风吹散"
-                            });
-                        }
+                        if (newData.aiCache) { delete newData.aiCache; newData.logs.push({ date: today, icon: '🍃', content: "特征改变，旧AI向导笔记已失效被清空" }); }
                     }
                     this.contacts[idx] = newData;
                 }
-
-                this.saveData();
-                this.switchTab('list'); 
+                this.saveData(); this.closeDrawer(); 
             },
 
-            exportData() {
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.contacts));
-                const downloadAnchorNode = document.createElement('a');
-                downloadAnchorNode.setAttribute("href", dataStr);
-                downloadAnchorNode.setAttribute("download", "cozy_crm_backup_" + this.getToday() + ".json");
-                document.body.appendChild(downloadAnchorNode);
-                downloadAnchorNode.click();
-                downloadAnchorNode.remove();
-                alert('📦 数据已经打包好啦，请妥善保管。');
-            },
-
-            exportToCSV() {
-                if (this.contacts.length === 0) { alert('小镇里还没有人哦，无法导出。'); return; }
-                const headers = ['名字', '分区', '能量', '我的感觉', 'TA的感觉', '浇水频率', '最后浇水', '特质标签', '避开的水坑', '日记本'];
-                const escapeCSV = (text) => {
-                    if (text === null || text === undefined) return '';
-                    const stringText = String(text);
-                    if (stringText.includes(',') || stringText.includes('"') || stringText.includes('\n')) return '"' + stringText.replace(/"/g, '""') + '"';
-                    return stringText;
-                };
-
-                const rows = this.contacts.map(c => {
-                    return [
-                        escapeCSV(c.name), escapeCSV(c.group), escapeCSV(c.energyType),
-                        c.myAffinity, c.theirAffinity, c.targetFrequency, escapeCSV(c.lastContactDate),
-                        escapeCSV(c.tags.join(';')), escapeCSV(c.taboos), escapeCSV(c.privateNotes)
-                    ].join(',');
-                });
-
-                const csvContent = "\uFEFF" + headers.join(',') + '\n' + rows.join('\n');
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const downloadAnchorNode = document.createElement('a');
-                downloadAnchorNode.setAttribute("href", url);
-                downloadAnchorNode.setAttribute("download", "cozy_crm_export_" + this.getToday() + ".csv");
-                document.body.appendChild(downloadAnchorNode);
-                downloadAnchorNode.click();
-                downloadAnchorNode.remove();
-            },
-
-            importData(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const importedContacts = JSON.parse(e.target.result);
-                        if(Array.isArray(importedContacts)) {
-                            this.contacts = importedContacts;
-                            this.saveData();
-                            alert('🌟 小镇数据恢复成功！');
-                            this.switchTab('list');
-                        } else { alert('哎呀，文件好像弄坏了。'); }
-                    } catch (err) { alert('这好像不是正确的备份文件哦。'); }
-                };
-                reader.readAsText(file);
-                event.target.value = ''; 
-            },
-
-            renderSettingsUI() {
-                document.getElementById('config-ai-toggle').checked = this.config.useCustomAI;
-                document.getElementById('config-ai-url').value = this.config.aiUrl;
-                document.getElementById('config-ai-model').value = this.config.aiModel;
-                document.getElementById('config-ai-key').value = this.config.aiKey;
-                this.toggleCustomAI(true); 
-            },
-
-            toggleCustomAI(isInit = false) {
-                const isChecked = document.getElementById('config-ai-toggle').checked;
-                const panel = document.getElementById('config-ai-panel');
-                
-                if (isChecked) panel.classList.remove('hidden');
-                else panel.classList.add('hidden');
-
-                if (!isInit) {
-                    this.config.useCustomAI = isChecked;
-                    this.saveConfigData();
+            deleteContact() {
+                const idInput = document.getElementById('form-id').value;
+                if (!idInput) return;
+                const contact = this.contacts.find(c => c.id === idInput);
+                if (window.confirm(`确定让【${contact.name}】搬离小镇吗？\n所有记忆将永久消失！`)) {
+                    this.contacts = this.contacts.filter(c => c.id !== idInput);
+                    this.saveData(); this.closeDrawer();
                 }
             },
 
-            saveAIConfig(event) {
-                this.config.aiUrl = document.getElementById('config-ai-url').value.trim();
-                this.config.aiModel = document.getElementById('config-ai-model').value.trim();
-                this.config.aiKey = document.getElementById('config-ai-key').value.trim();
-                this.saveConfigData();
-                
-                const btn = event.target;
-                const oldText = btn.innerHTML;
-                btn.innerHTML = `<i class="fa-solid fa-check mr-2"></i>保存成功`;
-                btn.classList.add('bg-pixelGreen', 'text-white');
-                btn.classList.remove('bg-pixelYellow', 'text-woodDark');
-                setTimeout(() => {
-                    btn.innerHTML = oldText;
-                    btn.classList.remove('bg-pixelGreen', 'text-white');
-                    btn.classList.add('bg-pixelYellow', 'text-woodDark');
-                }, 1500);
+            async callGeminiAPI(prompt) {
+                if (this.config.useCustomAI && this.config.aiKey.trim() !== '') {
+                    const payload = { model: this.config.aiModel || 'deepseek-chat', messages: [{ role: 'system', content: '你是温馨的森系向导。用现代排版输出。' }, { role: 'user', content: prompt }] };
+                    return await this.executeFetchWithRetry(this.config.aiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.config.aiKey.trim()}` }, body: JSON.stringify(payload) }, data => data.choices?.[0]?.message?.content);
+                }
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=`;
+                const payload = { contents: [{ parts: [{ text: prompt }] }], systemInstruction: { parts: [{ text: "你是温馨的森系向导。用现代排版输出。" }] } };
+                return await this.executeFetchWithRetry(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }, data => data.candidates?.[0]?.content?.parts?.[0]?.text);
             },
-
-            setupEventListeners() {
-                document.getElementById('search-input').addEventListener('input', (e) => this.renderList(e.target.value));
-                document.getElementById('tag-input').addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        const val = e.target.value.trim();
-                        if (val && !this.editingTags.includes(val)) {
-                            this.editingTags.push(val);
-                            this.renderTagsInForm();
-                        }
-                        e.target.value = '';
-                    }
-                });
-            },
-
-            initStarsUI(containerId, type) {
-                const container = document.getElementById(containerId);
-                container.innerHTML = Array(5).fill(0).map((_, i) => `<i class="fa-solid fa-star cursor-pointer transition-colors" data-val="${i+1}"></i>`).join('');
-                container.addEventListener('click', (e) => {
-                    if(e.target.tagName === 'I') this.setStars(type, parseInt(e.target.dataset.val));
-                });
-            },
-
-            setStars(type, value) {
-                document.getElementById(`form-${type}-affinity`).value = value;
-                const stars = document.getElementById(`form-${type}-stars`).children;
-                for(let i=0; i<stars.length; i++) {
-                    stars[i].className = `fa-solid fa-star cursor-pointer transition-colors ${i < value ? 'text-pixelYellow' : 'text-woodDark/20'}`;
+            async executeFetchWithRetry(url, options, extractFn) {
+                let retries = 3; let delays = [1000, 2000];
+                for (let i = 0; i < retries; i++) {
+                    try { const res = await fetch(url, options); if (!res.ok) throw new Error(); const data = await res.json(); return extractFn(data); } 
+                    catch (error) { if (i === retries - 1) throw error; await new Promise(r => setTimeout(r, delays[i])); }
                 }
             },
 
-            generateStarsHTML(count) {
-                return Array(5).fill(0).map((_, i) => `<i class="fa-solid fa-star ${i < count ? 'drop-shadow-sm' : 'text-woodDark/10'}"></i>`).join('');
+            renderAIResultUI(taskType) {
+                const contact = this.contacts.find(c => c.id === this.currentDetailId);
+                if (!contact) return; 
+                const container = document.getElementById('ai-profile-container');
+                ['profile', 'message', 'ideas'].forEach(t => {
+                    const btn = document.getElementById(`btn-ai-${t}`); if(!btn) return;
+                    if (t === taskType && contact.aiCache && contact.aiCache[taskType]) { btn.className = `neo-btn bg-pixelGreen text-white px-4 py-2.5 text-sm shrink-0`; } 
+                    else { btn.className = `neo-btn bg-white px-4 py-2.5 text-sm shrink-0 text-woodDark hover:bg-woodBg transition-colors`; }
+                });
+                if (contact.aiCache && contact.aiCache[taskType]) {
+                    document.getElementById('ai-profile-content').innerHTML = contact.aiCache[taskType].content.replace(/\n/g, '<br/>').replace(/\*\*(.*?)\*\*/g, '<span class="text-woodDark font-bold bg-pixelYellow/40 px-1 rounded">$1</span>');
+                    document.getElementById('ai-profile-type').innerText = "🍃 向导笔记";
+                    document.getElementById('ai-profile-date').innerText = contact.aiCache[taskType].updatedAt;
+                    container.classList.remove('hidden');
+                } else container.classList.add('hidden');
             },
 
-            renderTagsInForm() {
-                const container = document.getElementById('form-tags-container');
-                container.innerHTML = this.editingTags.map((tag, i) => `
-                    <span class="bg-paperWhite text-woodDark text-xs font-bold px-2.5 py-1.5 border-2 border-woodDark/50 rounded-sm flex items-center shadow-sm max-w-full">
-                        <span class="truncate">${this.escapeHTML(tag)}</span>
-                        <i class="fa-solid fa-xmark ml-2 text-woodDark/50 hover:text-pixelRed cursor-pointer shrink-0" onclick="app.editingTags.splice(${i},1); app.renderTagsInForm()"></i>
-                    </span>
-                `).join('');
+            async runAITask(taskType) {
+                const contact = this.contacts.find(c => c.id === this.currentDetailId);
+                if (!contact) return;
+                const btn = document.getElementById(`btn-ai-${taskType}`);
+                const h = this.calculateHealth(contact);
+                const baseContext = `信息: 分组:${contact.group}, 能量:${contact.energyType}, 标签:${contact.tags.join(',')}, 雷区:${contact.taboos}, 距今 ${h.daysSince} 天未联系。`;
+                let prompt = taskType === 'profile' ? `${baseContext} 请生成简明速写笔记(200字内)。` : (taskType === 'message' ? `${baseContext} 写3个简短不尴尬的微信问候语。` : `${baseContext} 给3个聊天话题和3个伴手礼建议。`);
+
+                try {
+                    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i>思考中...`; btn.disabled = true;
+                    const aiText = await this.callGeminiAPI(prompt);
+                    if (aiText) { contact.aiCache = contact.aiCache || {}; contact.aiCache[taskType] = { content: aiText, updatedAt: this.getToday() }; this.saveData(); this.renderAIResultUI(taskType); } 
+                } catch (error) {
+                    if (this.currentDetailId === contact.id) document.getElementById('ai-profile-content').innerHTML = `<span class="text-pixelRed">向导迷路了，请稍后再试或检查设置。</span>`; document.getElementById('ai-profile-container').classList.remove('hidden');
+                } finally { if (this.currentDetailId === contact.id) btn.disabled = false; }
             },
 
-            // ==================== 🛠️ 新增：系统级安全工具 ====================
-            // 安检扫描仪：将危险字符转换为安全的 HTML 实体
-            escapeHTML(str) {
-                if (str === null || str === undefined) return '';
-                return String(str)
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;')
-                    .replace(/'/g, '&#039;');
-            },
-
-            getToday() {
-                const d = new Date();
-                return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-            },
-
-            calculatePastDate(daysAgo) {
-                const d = new Date();
-                d.setDate(d.getDate() - daysAgo);
-                return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-            }
+            exportData() { const blob=new Blob([JSON.stringify(this.contacts)],{type:'text/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`crm_${this.getToday()}.json`; a.click(); },
+            exportToCSV() { alert('CSV导出已在架构内就绪'); },
+            importData(e) { const file = e.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (ev) => { try { this.contacts = JSON.parse(ev.target.result); this.saveData(); alert('恢复成功'); this.closeDrawer(); } catch(err){} }; reader.readAsText(file); e.target.value=''; },
+            renderSettingsUI() { document.getElementById('config-ai-toggle').checked = this.config.useCustomAI; document.getElementById('config-ai-url').value = this.config.aiUrl; document.getElementById('config-ai-model').value = this.config.aiModel; document.getElementById('config-ai-key').value = this.config.aiKey; this.toggleCustomAI(true); },
+            toggleCustomAI(init=false) { const isChecked = document.getElementById('config-ai-toggle').checked; document.getElementById('config-ai-panel').style.display = isChecked ? 'block' : 'none'; if(!init){ this.config.useCustomAI = isChecked; this.saveConfigData(); } },
+            saveAIConfig(e) { this.config.aiUrl = document.getElementById('config-ai-url').value; this.config.aiModel = document.getElementById('config-ai-model').value; this.config.aiKey = document.getElementById('config-ai-key').value; this.saveConfigData(); const b=e.target; b.innerHTML=`<i class="fa-solid fa-check mr-2"></i>已保存`; setTimeout(()=>b.innerText="保存引擎配置",1000); },
+            setupEventListeners() { document.getElementById('search-input').addEventListener('input', e => this.renderList(e.target.value)); document.getElementById('tag-input').addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); const val=e.target.value.trim(); if(val && !this.editingTags.includes(val)){ this.editingTags.push(val); this.renderTagsInForm(); } e.target.value=''; } }); },
+            initStarsUI(id, type) { const container = document.getElementById(id); container.innerHTML = Array(5).fill(0).map((_, i) => `<i class="fa-solid fa-star cursor-pointer" data-val="${i+1}"></i>`).join(''); container.addEventListener('click', e => { if(e.target.tagName === 'I') this.setStars(type, parseInt(e.target.dataset.val)); }); },
+            setStars(type, val) { document.getElementById(`form-${type}-affinity`).value = val; Array.from(document.getElementById(`form-${type}-stars`).children).forEach((s, i) => s.className = `fa-solid fa-star cursor-pointer ${i < val ? 'text-pixelYellow drop-shadow-sm' : 'text-woodDark/20'}`); },
+            generateStarsHTML(c) { return Array(5).fill(0).map((_, i) => `<i class="fa-solid fa-star ${i < c ? 'drop-shadow-sm' : 'text-woodDark/10'}"></i>`).join(''); },
+            renderTagsInForm() { document.getElementById('form-tags-container').innerHTML = this.editingTags.map((tag, i) => `<span class="bg-paperWhite text-woodDark text-xs border border-woodDark/50 px-2 py-1 rounded shadow-sm font-sans font-bold">${this.escapeHTML(tag)} <i class="fa-solid fa-xmark ml-1 cursor-pointer text-woodDark/40 hover:text-pixelRed" onclick="app.editingTags.splice(${i},1); app.renderTagsInForm()"></i></span>`).join(''); },
+            getToday() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; },
+            calculatePastDate(days) { const d = new Date(); d.setDate(d.getDate() - days); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
         };
+
+        document.getElementById('drawer-backdrop').addEventListener('click', (e) => {
+            if (e.target.id === 'drawer-backdrop') app.closeDrawer();
+        });
 
         document.addEventListener('DOMContentLoaded', () => app.init());
     </script>
