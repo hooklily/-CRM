@@ -875,7 +875,7 @@
             STORAGE_KEY: 'personal_crm_v2_data',
             CONFIG_KEY: 'personal_crm_v2_config',
             contacts: [],
-            config: { useCustomAI: false, aiUrl: 'https://api.deepseek.com/chat/completions', aiModel: 'deepseek-chat', aiKey: '' },
+            config: { useCustomAI: false, aiUrl: 'https://api.deepseek.com/v1/chat/completions', aiModel: 'deepseek-chat', aiKey: '' },
             currentDrawer: null, // 'detail', 'form', 'settings'
             currentDetailId: null,
             editingTags: [],
@@ -1235,8 +1235,23 @@
             async executeFetchWithRetry(url, options, extractFn) {
                 let retries = 3; let delays = [1000, 2000];
                 for (let i = 0; i < retries; i++) {
-                    try { const res = await fetch(url, options); if (!res.ok) throw new Error(); const data = await res.json(); return extractFn(data); }
-                    catch (error) { if (i === retries - 1) throw error; await new Promise(r => setTimeout(r, delays[i])); }
+                    try {
+                        const res = await fetch(url, options);
+                        if (!res.ok) {
+                            const errBody = await res.text();
+                            const errMsg = `HTTP ${res.status}: ${errBody.slice(0, 200)}`;
+                            const err = new Error(errMsg);
+                            err.status = res.status;
+                            throw err;
+                        }
+                        const data = await res.json();
+                        return extractFn(data);
+                    } catch (error) {
+                        // 4xx 是客户端错误，不可重试，直接抛出
+                        if (error.status >= 400 && error.status < 500) throw error;
+                        if (i === retries - 1) throw error;
+                        await new Promise(r => setTimeout(r, delays[i]));
+                    }
                 }
             },
 
@@ -1261,6 +1276,7 @@
                 const contact = this.contacts.find(c => c.id === this.currentDetailId);
                 if (!contact) return;
                 const btn = document.getElementById(`btn-ai-${taskType}`);
+                const btnLabels = { profile: '人物速写', message: '写封信件', ideas: '准备礼物' };
                 const h = this.calculateHealth(contact);
                 const baseContext = `信息: 分组:${contact.group}, 能量:${contact.energyType}, 标签:${contact.tags.join(',')}, 雷区:${contact.taboos}, 距今 ${h.daysSince} 天未联系。`;
                 let prompt = taskType === 'profile' ? `${baseContext} 请生成简明速写笔记(200字内)。` : (taskType === 'message' ? `${baseContext} 写3个简短不尴尬的微信问候语。` : `${baseContext} 给3个聊天话题和3个伴手礼建议。`);
@@ -1271,8 +1287,16 @@
                     const aiText = await this.callGeminiAPI(prompt);
                     if (aiText) { contact.aiCache = contact.aiCache || {}; contact.aiCache[taskType] = { content: aiText, updatedAt: this.getToday() }; this.saveData(); this.renderAIResultUI(taskType); }
                 } catch (error) {
-                    if (this.currentDetailId === contact.id) document.getElementById('ai-profile-content').innerHTML = `<span class="text-pixelRed">向导迷路了，请稍后再试或检查设置。</span>`; document.getElementById('ai-profile-container').classList.remove('hidden');
-                } finally { if (this.currentDetailId === contact.id) btn.disabled = false; }
+                    if (this.currentDetailId === contact.id) {
+                        document.getElementById('ai-profile-content').innerHTML = `<span class="text-pixelRed font-pixel text-sm">向导迷路了 🔴</span><br><span class="text-xs text-woodDark/60 font-sans break-all">${this.escapeHTML(error.message || '网络错误，请检查 API 设置后重试')}</span>`;
+                        document.getElementById('ai-profile-container').classList.remove('hidden');
+                    }
+                } finally {
+                    if (this.currentDetailId === contact.id) {
+                        btn.disabled = false;
+                        btn.innerHTML = btnLabels[taskType] || taskType;
+                    }
+                }
             },
 
             exportData() { const blob=new Blob([JSON.stringify(this.contacts)],{type:'text/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`crm_${this.getToday()}.json`; a.click(); },
